@@ -4,3 +4,4 @@ version = "0.1.0"
 authors = ["Pierre-Antoine Lacaze <pa.lacaze@laposte.net>"]
 
 [dependencies]
+ndarray = "0.6"
