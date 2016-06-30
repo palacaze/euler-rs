@@ -7,16 +7,13 @@
 extern crate num;
 use num::bigint::{BigUint, ToBigUint}; 
 
+fn sum_digits(n : &BigUint) -> u32 {
+    n.to_string().chars().map(|c| c.to_digit(10).unwrap()).fold(0, |a, d| a + d)
+}
+
 fn main() {
     let nb = 1000;
-    let ten = 10.to_biguint().unwrap();
-
-    let mut n = num::pow(2u64.to_biguint().unwrap(), nb);
-    let mut s : BigUint = num::zero();
-    while n != num::zero() {
-        s = s + n.clone() % &ten;
-        n = n.clone() / &ten;
-    }
-
-    println!("sum of digits for 2^{} = {}", nb, s);
+    let n = num::pow(2u64.to_biguint().unwrap(), nb);
+    let d = sum_digits(&n);
+    println!("{}", d);
 }
