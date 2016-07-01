@@ -73,7 +73,7 @@ fn main() {
 
             // max product over matrix cols and rows
             for sm in vec![sl, sl.t()] {
-                let mh = sm.outer_iter().map(|v| v.iter().fold(1, |a, x| a * x)).fold(0, |a, x| cmp::max(a, x));
+                let mh = sm.outer_iter().map(|v| v.iter().fold(1, |a, x| a * x)).max().unwrap();
                 prod = cmp::max(prod, mh);
             }
 

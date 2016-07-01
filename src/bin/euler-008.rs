@@ -23,8 +23,6 @@
 //
 // Find the thirteen adjacent digits in the 1000-digit number that have the greatest product. What is the value of this product?
 
-use std::cmp;
-
 fn main() {
     let nb = 13;
     let n : Vec<u8> = vec![
@@ -52,6 +50,6 @@ fn main() {
 
     let m = (0..n.len()-nb).zip(nb..n.len())
                            .map(|(i1, i2)| n[i1..i2].iter().fold(1u64, |a, x| a * (*x as u64)))
-                           .fold(0, |a, x| cmp::max(a, x));
+                           .max().unwrap();
     println!("sum = {}", m);
 }
