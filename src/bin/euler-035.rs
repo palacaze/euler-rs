@@ -25,11 +25,11 @@ fn is_prime(n : &usize) -> bool {
     true
 }
 
-fn no_zero_or_five(n: &usize) -> bool {
+fn no_pair_or_five_digit(n: &usize) -> bool {
     let mut q = *n;
     while q != 0 {
         let r = q % 10;
-        if r == 0 || r == 5 {
+        if r == 0 || r == 2 || r == 4 || r == 6 || r == 8 || r == 5 {
             return false;
         }
         q /= 10;
@@ -64,7 +64,7 @@ fn circular_permutations(n: usize) -> Option<Vec<usize>> {
 
 // First of all we will compute every prime under nb, it will serve as a
 // cache, which will avoid duplicate computations.
-// We can reduce the workload further by remarking that any prime with a zero or
+// We can reduce the workload further by remarking that any prime with a pair digit (0,2,4,6,8) or
 // a 5 can't be circular (at the exception of 5 itself) because one of its
 // permutation with end with a 0 or 5, denoting a non-prime number.
 // Then we will traverse the set, for each entry we will generate the permutations
@@ -73,7 +73,7 @@ fn circular_permutations(n: usize) -> Option<Vec<usize>> {
 
 fn main() {
     let nb = 1_000_000;
-    let mut primes = (10..nb).filter(no_zero_or_five).filter(is_prime)
+    let mut primes = (10..nb).filter(no_pair_or_five_digit).filter(is_prime)
                              .map(|x| (x, Circular::Untested)).collect::<HashMap<_,_>>();
 
     for (n, c) in primes.clone().iter() {
