@@ -6,3 +6,4 @@ authors = ["Pierre-Antoine Lacaze <pa.lacaze@laposte.net>"]
 [dependencies]
 ndarray = "0.6"
 num = "0.1"
+itertools = "0.4"
