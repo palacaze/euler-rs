@@ -8,7 +8,9 @@
 
 // palindromic and no leading 0 means odd number
 
-#![feature(step_by)]
+#[macro_use]
+extern crate itertools;
+use itertools::Itertools;
 
 fn is_decimal_palindromic(n : usize) -> bool {
     let mut v : Vec<u8> = Vec::with_capacity(6);
@@ -42,7 +44,7 @@ fn is_palindromic(n: &usize) -> bool {
 
 fn main() {
     let nb = 1_000_000;
-    let sum = (1..nb).step_by(2).filter(is_palindromic).fold(0, |a,c| a+c);
-    let las = (1..nb).step_by(2).filter(is_palindromic).collect::<Vec<_>>();
+    let sum = (1..nb).step(2).filter(is_palindromic).fold(0, |a,c| a+c);
+    let las = (1..nb).step(2).filter(is_palindromic).collect::<Vec<_>>();
     println!("sum = {}, {:?}", sum, las);
 }
