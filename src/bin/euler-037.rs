@@ -14,11 +14,10 @@
 // as an exception, the first number may be 2 or 5, because those are primes and only appear
 // for the last truncation, that gives a one-digit number
 
-#![feature(step_by)] 
-
 #[macro_use]
 extern crate itertools;
 
+use std::ops::Add;
 use itertools::Itertools;
 
 fn is_prime(n : &usize) -> bool {
@@ -37,7 +36,7 @@ fn is_prime(n : &usize) -> bool {
 fn is_truncable_prime(n : &usize) -> bool {
     let mut q = *n;
     let mut r = 0;
-    
+
     for i in 0.. {
         if q == 0 { break; }
         if !is_prime(&q) { return false; }
@@ -49,47 +48,39 @@ fn is_truncable_prime(n : &usize) -> bool {
     true
 }
 
-// generate the set.len() ^ count permutations with repetitions
-// of count digits in set
-fn perm_rep(count: usize, set: &Vec<u8>) -> Vec<Vec<u8>> {
-    if count == 1 {
-        // first digit
-        return set.iter().map(|x| vec![*x]).collect::<Vec<_>>();
-    }
+// Generate all the numbers through digits permutation from supplied lists
+// of digits.
+fn digit_permutations(digit_sets: &[Vec<usize>]) -> Vec<usize> {
+    let len = digit_sets.len();
+    if len == 1 { return digit_sets[0].clone(); }
 
-    // previous digits
-    let perm = perm_rep(count - 1, set);
-    perm.iter().cartesian_product(set.iter()).map(|(v,c)| {
-        let mut v = v.clone();
-        v.push(*c);
-        v }).collect::<Vec<_>>()
+    let perms = digit_permutations(&digit_sets[..(len-1)]);
+    perms.iter().cartesian_product(digit_sets[len-1].iter())
+               .map(|(v,c)| { *v * 10  + *c as usize }).collect_vec()
 }
 
-// generate a number from a digits permutation, a first digit and a last digit
-fn gen_num(digits: &Vec<u8>, d1: u8, d2: u8) -> usize {
-    let mut dig = vec![d1];
-    dig.extend(digits.iter().cloned());
-    dig.push(d2);
-    dig.iter().enumerate().map(|(i,x)| (*x as usize) * 10usize.pow(i as u32)).fold(0, |a,c| a+c)
-}
-
-// generate all the candidate numbers with count digits
+// generate all the truncable numbers of given digits count
 fn truncable_primes(count: usize) -> Vec<usize> {
-    if count < 2  { return Vec::new();}    // nothing with 1 digit
-    if count == 2 { return vec![23, 53, 37, 73]; } // only those numbers with 2 digits
+    let first_digit = vec![2, 3, 5, 7];
+    let mid_digit   = vec![1, 3, 7, 9];
+    let last_digit  = vec![3, 7];
 
-    let perms = perm_rep(count - 2, &vec!(1u8, 3u8, 7u8, 9u8));
-    perms.iter().cartesian_product(vec![(2,3),(2,7),(5,3),(5,7),(3,3),(3,7),(7,3),(7,7)].iter())
-                .map(|(v,&(d1,d2))| gen_num(v,d1,d2))
-                .filter(is_truncable_prime).collect::<Vec<_>>()
+    // the digit sets to be used for number generation
+    let mut sets = vec![first_digit];
+    for _ in 0..(count-2) { sets.push(mid_digit.clone()); }
+    sets.push(last_digit);
+
+    let mut perms = digit_permutations(&sets);
+    perms.retain(is_truncable_prime);
+    perms
 }
 
 fn main() {
     // brute force solution, takes 500 ms
-    let r1 = (11..1_000_000).step_by(2).filter(is_truncable_prime).collect::<Vec<_>>();
-    println!("{:?} -> sum = {}", r1, r1.iter().fold(0, |a,c| a+c));
+    let r1 = (11..1_000_000).step(2).filter(is_truncable_prime).collect_vec();
+    println!("{:?} -> sum = {}", r1, r1.iter().fold(0, Add::add));
 
     // smart solution, take only 4 ms
-    let r2 = (2..7).flat_map(|i| truncable_primes(i).into_iter()).collect::<Vec<_>>();
-    println!("{:?} -> sum = {}", r2, r2.iter().fold(0, |a,c| a+c));
+    let r2 = (2..7).flat_map(|i| truncable_primes(i).into_iter()).collect_vec();
+    println!("{:?} -> sum = {}", r2, r2.iter().fold(0, Add::add));
 }
