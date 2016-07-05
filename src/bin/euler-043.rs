@@ -15,6 +15,9 @@
 //
 // Find the sum of all 0 to 9 pandigital numbers with this property.
 
+#![feature(test)]
+extern crate test;
+
 #[macro_use]
 extern crate itertools;
 use itertools::Itertools;
@@ -25,6 +28,19 @@ use std::collections::BTreeSet;
 struct DigitMapping {
     used: Vec<usize>,
     avail: BTreeSet<usize>,
+}
+
+impl DigitMapping {
+    // take the digit from avail and put it in used
+    fn add(&mut self, digit: usize) {
+        self.used.push(digit);
+        self.avail.remove(&digit);
+    }
+
+    // add remaining avail digits to used
+    fn finish(&mut self) {
+        self.used.extend(self.avail.iter());
+    }
 }
 
 // convert a number to a list of digits.
@@ -47,12 +63,7 @@ fn number_to_digits(n: usize) -> Vec<usize> {
 
 // reverse conversion
 fn digits_to_number(v: &[usize]) -> usize {
-    let mut n = 0;
-    for d in v.iter().rev() {
-        n = 10 * n + d;
-    }
-
-    n
+    v.iter().rev().fold(0, |a, d| 10 * a + d)
 }
 
 // here we assume 3 digits
@@ -68,8 +79,8 @@ fn ensure_divisibility(divisors: &[usize], mappings: &Vec<DigitMapping>) -> Vec<
         // assign last digit
         return mappings.iter().map(|m| {
             let mut m2 = m.clone();
-            m2.used.extend(m.avail.iter());
-            m2.clone()
+            m2.finish();
+            m2
         }).collect::<Vec<_>>();
     }
 
@@ -82,8 +93,7 @@ fn ensure_divisibility(divisors: &[usize], mappings: &Vec<DigitMapping>) -> Vec<
             let n = digits_to_number(&[m.used[m.used.len()-2], m.used[m.used.len()-1], *d]);
             if n % divisors[0] == 0 {
                 let mut nm = m.clone();
-                nm.used.push(*d);
-                nm.avail.remove(d);
+                nm.add(*d);
                 v.push(nm);
             }
         }
@@ -93,7 +103,7 @@ fn ensure_divisibility(divisors: &[usize], mappings: &Vec<DigitMapping>) -> Vec<
 }
 
 // we will move backward from the end in order to satisfy all the criteria
-fn main() {
+pub fn solve() -> usize {
     let set = (0..10).collect::<BTreeSet<_>>();
 
     // first the set of 3 digit numbers divisible by 17
@@ -107,7 +117,30 @@ fn main() {
                                .collect::<Vec<_>>();
 
     let m = ensure_divisibility(&[13, 11, 7, 5, 3, 2], &v).iter().map(|m| digits_to_number(&m.used)).collect::<Vec<_>>();
-    println!("pandigital divisible sub-strings = {:?}", m);
-    println!("sum = {:?}", m.iter().fold(0, |a,c| a+c));
+    // println!("pandigital divisible sub-strings = {:?}", m);
+    
+    // sum
+    m.iter().fold(0, |a,c| a+c)
+}
+
+fn main() {
+    let sum = solve();
+    println!("sum = {:?}", sum);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test::{Bencher, black_box};
+
+    #[test]
+    fn test_pb() {
+        assert_eq!(16695334890, solve());
+    }
+
+    #[bench]
+    fn bench_pb(b: &mut Bencher) {
+        b.iter(|| black_box(solve()));
+    }
 }
 
