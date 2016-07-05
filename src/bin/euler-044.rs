@@ -33,10 +33,11 @@ fn is_pentagon(pn: usize) -> bool {
 }
 
 pub fn solve() -> usize {
-    let mut diff = 10_000_000;  // big pn - pk as a starting point
+    // current value of pn - pk
+    let mut diff = 10_000_000_000;  // big value as a starting point
 
     for n in 2.. {
-        // We now that for any k, p_n -p_k ≥ p_n -p_n-1 ≥ 3n + 1
+        // We know that for any k, p_n - p_k >= p_n - p_n-1 >= 3n + 1
         // so if 3n+1 becomes bigger than our best diff yet, we know we
         // can't find a smaller diff and the problem is solved
         if 3 * n + 1 > diff {
