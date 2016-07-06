@@ -16,39 +16,32 @@ const TENTEN: usize = 10_000_000_000;
 
 pub fn solve_brute() -> usize {
     let div = num::pow(10u64.to_biguint().unwrap(), 10);
-    let sum : BigUint = (1..NUM).map(|i| num::pow(i.to_biguint().unwrap(), i) % div.clone()).fold(num::zero(), |a,c|a+c);
+    let sum : BigUint = (1..NUM).map(|i| num::pow(i.to_biguint().unwrap(), i) % &div).fold(num::zero(), |a,c|a+c);
     sum.to_usize().unwrap() % TENTEN
 }
 
-fn num_digits(n: usize) -> usize {
-     let mut digits = 1;
-     let mut pten = 10;
-     while pten <= n {
-         digits += 1;
-         pten *= 10;
-     }
-     digits
+fn mod_exp(mut b: usize, mut e: usize) -> usize {
+    let mut r = 1;
+    while e > 0 {
+        if e % 2 == 1 { r = partial_prod(r, b); }
+        e /= 2;
+        b = partial_prod(b, b);
+    }
+    r
 }
 
 // calculate the product of x and b, with 10 digits truncation
-fn partial_prod(x: usize, b: usize) -> usize {
+fn partial_prod(mut x: usize, mut y: usize) -> usize {
     // we must truncate before and after to avoid overflow
-    let dx = num_digits(x);
-    let db = num_digits(b);
-    if dx > 5 && db > 5 { ((x % 100_000) * b) % TENTEN }
-    else { (x * b) %  TENTEN }
+    x %= TENTEN;
+    y %= TENTEN;
+    let a = x % 100_000;
+    let b = y % 100_000;
+    (x * b + (y - b) * a) % TENTEN
 }
 
 pub fn solve_partial() -> usize {
-    let mut sum = 0;
-    for i in 1..NUM {
-        let mut f = 1;
-        for _ in 0..i {
-            f = partial_prod(f, i);
-        }
-        sum += f;
-    }
-    sum % TENTEN
+    ((1..NUM).map(|i| mod_exp(i, i)).fold(0, |a,c| a + c)) % TENTEN
 }
 
 fn main() {
