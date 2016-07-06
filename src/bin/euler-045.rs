@@ -9,13 +9,10 @@
 //
 // Find the next triangle number that is also pentagonal and hexagonal.
 
+// an haxagonal number is always triangle, no need to test this property
 
 #![feature(test)]
 extern crate test;
-
-fn triangle(n: usize) -> usize {
-    n * (n + 1) / 2
-}
 
 fn pentagon(n: usize) -> usize {
     n * (3 * n -1) / 2
@@ -25,14 +22,8 @@ fn hexagon(n: usize) -> usize {
     n * (2 * n -1)
 }
 
-fn is_triangle(pn: usize) -> bool {
-    let s = (1.0 + 8.0 * pn as f64).sqrt();
-    let n = ((s - 1.0) / 2.0) as usize;
-    triangle(n) == pn || triangle(n+1) == n+1
-}
-
 fn is_pentagon(pn: usize) -> bool {
-    let s = (1.0 + 24.0 * pn as f64).sqrt();
+    let s = (1.0 + 24.0 * pn as f32).sqrt();
     let n = ((1.0 + s) / 6.0) as usize;
     pentagon(n) == pn || pentagon(n+1) == n+1
 }
@@ -40,7 +31,7 @@ fn is_pentagon(pn: usize) -> bool {
 pub fn solve() -> usize {
     for n in 144.. {
         let v = hexagon(n);
-        if is_pentagon(v) && is_triangle(v) {
+        if is_pentagon(v) {
             return v;
         }
     }
