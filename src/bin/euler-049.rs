@@ -31,9 +31,10 @@ impl PrimeCounter {
     }
 
     fn is_prime(& self, n : u64) -> bool {
+        let lim = (n as f32).sqrt() as u64 + 1;
         for x in &self.v {
-            if n % x == 0 {
-                return false;
+            if *x > lim { return true; }
+            if n % x == 0 { return false;
             }
         }
         true
