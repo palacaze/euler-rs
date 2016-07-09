@@ -41,7 +41,7 @@ fn is_pandigital(v: &[usize]) -> bool {
     for n in v {
         check_digits(*n, &mut counter);
     }
-    return counter.iter().skip(1).all(|&x| x);
+    counter.iter().skip(1).all(|&x| x)
 }
 
 fn search_pandigital(rg: &(usize, usize, usize)) -> Vec<(String,usize,usize)> {
@@ -58,10 +58,10 @@ fn search_pandigital(rg: &(usize, usize, usize)) -> Vec<(String,usize,usize)> {
 
 fn main() {
     let rg = &[(2, 5000, 10000),
-               (3,  100, 334  ),
-               (4,   25, 34   ),
-               (5,    5, 10   ),
-               (6,    3, 4    )];
+               (3,  100,   334),
+               (4,   25,    34),
+               (5,    5,    10),
+               (6,    3,     4)];
     
     let m = rg.iter().flat_map(search_pandigital).max();
     println!("max = {:?}", m);

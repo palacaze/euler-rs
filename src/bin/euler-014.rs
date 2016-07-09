@@ -22,8 +22,8 @@ fn is_odd(n : &usize) -> bool {
 
 #[inline]
 fn collatz(n : &usize) -> usize {
-    if n < &2 { return 0; }
-    if is_odd(&n) { 3 * n + 1 } else { n / 2 }
+    if *n < 2 { return 0; }
+    if is_odd(n) { 3 * n + 1 } else { n / 2 }
 }
 
 #[derive(Debug,Clone)]

@@ -20,14 +20,14 @@ fn cancelling_digits(n: usize, d: usize) -> bool {
     if n1 == d2 && n2 * d == d1 * n && n1 != 0 { return true; }
     if n2 == d2 && n1 * d == d1 * n && n2 != 0 { return true; }
     if n2 == d1 && n1 * d == d2 * n && n2 != 0 { return true; }
-    return false;
+    false
 }
 
 // euclid gcd
 fn gcd(a: usize, b: usize) -> usize {
-    if a == b { a }
-    else      { if a > b { gcd(a - b, b) }
-                else     { gcd(a, b - a) }}
+    if a == b     { a }
+    else if a > b { gcd(a - b, b) }
+    else          { gcd(a, b - a) }
 }
 
 fn simplify(n: usize, d: usize) -> (usize, usize) {

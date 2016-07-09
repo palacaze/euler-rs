@@ -17,7 +17,7 @@ use std::error::Error;
 use std::fs::File;
 use std::path::Path;
 
-fn count_chars(s : &String) -> u32 {
+fn count_chars(s : &str) -> u32 {
     s.chars().map(|c| c as u32 - 64).fold(0, |a, c| a+c)
 }
 
@@ -38,13 +38,12 @@ fn main() {
     };
 
     let mut names = String::new();
-    match file.read_to_string(&mut names) {
-        Err(why) => panic!("couldn't read {}: {}", display, why.description()),
-        Ok(_) => {},
-    }
+    if let Err(why) = file.read_to_string(&mut names) {
+        panic!("couldn't read {}: {}", display, why.description());
+    };
 
-    let v : Vec<String> = names.split(',').map(|s| s.trim_matches('"').to_string()).collect();
-    let r = v.iter().map(count_chars).filter(is_triangle).count();
+    let v : Vec<&str> = names.split(',').map(|s| s.trim_matches('"')).collect();
+    let r = v.into_iter().map(count_chars).filter(is_triangle).count();
 
     println!("triangle words = {:?}", r);
 }

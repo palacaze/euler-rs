@@ -39,7 +39,7 @@ fn digit_at_rel_offset(offset: usize, order: usize) -> usize {
 }
 
 fn digit_at_offset(offset: usize) -> usize {
-    return digit_at_rel_offset(offset, 1);
+    digit_at_rel_offset(offset, 1)
 }
 
 fn main() {

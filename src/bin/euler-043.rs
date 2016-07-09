@@ -67,14 +67,14 @@ fn digits_to_number(v: &[usize]) -> usize {
 }
 
 // here we assume 3 digits
-fn unique_digits(v: &Vec<usize>) -> bool {
+fn unique_digits(v: &[usize]) -> bool {
     assert_eq!(v.len(), 3);
     v[0] != v[1] && v[0] != v[2] && v[1] != v[2]
 }
 
 // recurse over the divisibility list in order to compose and filter
 // numbers that respect the rules
-fn ensure_divisibility(divisors: &[usize], mappings: &Vec<DigitMapping>) -> Vec<DigitMapping> {
+fn ensure_divisibility(divisors: &[usize], mappings: &[DigitMapping]) -> Vec<DigitMapping> {
     if divisors.is_empty() {
         // assign last digit
         return mappings.iter().map(|m| {
@@ -108,7 +108,7 @@ pub fn solve() -> usize {
 
     // first the set of 3 digit numbers divisible by 17
     let v = (17..1000).step(17).map(number_to_digits)
-                               .filter(unique_digits)
+                               .filter(|x| unique_digits(x))
                                .map(|v| {
                                    let mut s = set.clone();
                                    for d in &v { s.remove(d); }
@@ -118,7 +118,7 @@ pub fn solve() -> usize {
 
     let m = ensure_divisibility(&[13, 11, 7, 5, 3, 2], &v).iter().map(|m| digits_to_number(&m.used)).collect::<Vec<_>>();
     // println!("pandigital divisible sub-strings = {:?}", m);
-    
+
     // sum
     m.iter().fold(0, |a,c| a+c)
 }

@@ -25,7 +25,6 @@ fn fill_ways(amount: i32, avail: &[i32]) -> u32 {
 
 fn main() {
     let target: i32 = 200;
-    let sum = fill_ways(target, &COINS);
-
+    let sum = fill_ways(target, COINS);
     println!("sum = {}", sum);
 }

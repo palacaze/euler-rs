@@ -72,7 +72,7 @@ fn main() {
             let sl = m.slice(s![(i as isize)..((i+n) as isize), (j as isize)..((j+n) as isize)]);
 
             // max product over matrix cols and rows
-            for sm in vec![sl, sl.t()] {
+            for sm in &[sl, sl.t()] {
                 let mh = sm.outer_iter().map(|v| v.iter().fold(1, |a, x| a * x)).max().unwrap();
                 prod = cmp::max(prod, mh);
             }

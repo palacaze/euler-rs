@@ -13,13 +13,13 @@ use std::error::Error;
 use std::fs::File;
 use std::path::Path;
 
-fn count_chars(s : &String) -> u32 {
+fn count_chars(s : &str) -> u32 {
     s.chars().map(|c| c as u32 - 64).fold(0, |a, c| a+c)
 }
 
 fn main() {
     let path: String = env::args().nth(1).expect("Must supply a file name");
-    
+
     let path = Path::new(&path);
     let display = path.display();
 
@@ -29,14 +29,13 @@ fn main() {
     };
 
     let mut names = String::new();
-    match file.read_to_string(&mut names) {
-        Err(why) => panic!("couldn't read {}: {}", display, why.description()),
-        Ok(_) => {},
+    if let Err(why) = file.read_to_string(&mut names) {
+        panic!("couldn't read {}: {}", display, why.description());
     }
 
-    let mut v : Vec<String> = names.split(',').map(|s| s.trim_matches('"').to_string()).collect();
+    let mut v : Vec<&str> = names.split(',').map(|s| s.trim_matches('"')).collect();
     v.sort();
-    let r = v.iter().map(count_chars).enumerate().fold(0, |a, (i, n)| a + (i+1)*(n as usize));
+    let r = v.into_iter().map(count_chars).enumerate().fold(0, |a, (i, n)| a + (i+1)*(n as usize));
 
     println!("sum = {:?}", r);
 }

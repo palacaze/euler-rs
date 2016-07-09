@@ -32,7 +32,7 @@ fn cycle_length(n : usize) -> usize {
         if r >= n {
             // classical division, don't even bother to keep the digit
             let q = r / n;
-            r = r - n * q;
+            r -= n * q;
 
             // exact division, so no cycle
             if r == 0 {

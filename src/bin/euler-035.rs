@@ -16,7 +16,7 @@ fn is_prime(n : &usize) -> bool {
     if *n == 1 { return false; }
     if *n == 2 { return true;  }
 
-    let lim = (*n as f64).sqrt() as usize + 1;
+    let lim = (*n as f32).sqrt() as usize + 1;
     for x in 2..lim {
         if *n % x == 0 {
             return false;
@@ -76,7 +76,7 @@ fn main() {
     let mut primes = (10..nb).filter(no_pair_or_five_digit).filter(is_prime)
                              .map(|x| (x, Circular::Untested)).collect::<HashMap<_,_>>();
 
-    for (n, c) in primes.clone().iter() {
+    for (n, c) in &primes.clone() {
         // already visited
         if *c != Circular::Untested { continue; }
 
@@ -85,7 +85,7 @@ fn main() {
             let is_circ = perms.iter().all(|p| primes.contains_key(p));
 
             // mark the new state
-            for p in perms.iter() {
+            for p in &perms {
                 if let Some(v) = primes.get_mut(p) {
                     *v = if is_circ { Circular::Yes } else { Circular::No };
                 }

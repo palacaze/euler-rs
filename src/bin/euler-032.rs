@@ -35,7 +35,7 @@ fn is_pandigital(a: usize, b: usize, p: usize) -> bool {
     check_digits(a, &mut counter);
     check_digits(b, &mut counter);
     check_digits(p, &mut counter);
-    return counter.iter().skip(1).all(|&x| x);
+    counter.iter().skip(1).all(|&x| x)
 }
 
 fn search_range(a1: usize, a2: usize, prod_digits: u32, pan: &mut Vec<usize>) {

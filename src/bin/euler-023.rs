@@ -35,7 +35,7 @@ fn is_abundant(n : usize) -> bool {
     sum_divisors(n) > n
 }
 
-fn is_sum_abundants(n : usize, abundants : &Vec<bool>) -> bool {
+fn is_sum_abundants(n : usize, abundants : &[bool]) -> bool {
     for j in 1..(n/2+1) {
         // -1 because 'abundants' indexes from 1 instead of 0
         if abundants[j-1] && abundants[n-j-1] {

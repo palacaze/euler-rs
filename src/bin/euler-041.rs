@@ -18,8 +18,8 @@ fn is_prime(n : &usize) -> bool {
     if *n == 1 { return false; }
     if *n == 2 { return true;  }
 
-    let lim = (*n as f64).sqrt() as usize + 1;
-    for x in 2..lim {
+    let lim = (*n as f32).sqrt() as usize + 1;
+    for x in (3..lim).step(2) {
         if *n % x == 0 {
             return false;
         }
@@ -41,7 +41,7 @@ fn digit_permutations(digit_set: &[usize]) -> Vec<usize> {
         let f = digit_set[i] * 10usize.pow(len as u32 -1);
         s.remove(i);
         let mut p = digit_permutations(&s);
-        for e in p.iter_mut() {
+        for e in &mut p {
             *e += f;
         }
 
