@@ -12,22 +12,20 @@
 #![feature(test)]
 extern crate test;
 
-use std::collections::HashMap;
+#[macro_use]
+extern crate itertools;
+use itertools::Itertools;
 
+// base struct for a prime numbers iterator, that stores encountered primes
+// in order to speed-up discovery of subsequent primes.
 #[derive(Debug)]
 struct PrimeCounter {
     v : Vec<u64>,
 }
 
-#[derive(Debug,Copy,Clone)]
-struct PrimePerm {
-    prime: u64,
-    perm: u32
-}
-
 impl PrimeCounter {
     fn new() -> PrimeCounter {
-        PrimeCounter { v :  Vec::new() }
+        PrimeCounter { v : Vec::new() }
     }
 
     fn is_prime(& self, n : u64) -> bool {
@@ -64,7 +62,7 @@ impl Iterator for PrimeCounter {
 
 // with 4 digits, we need 3 bits per digit to account every digit,
 // this is usable to compare permutations for numbers up to 9999999
-fn account_digits(mut n: u64) -> u32 {
+fn count_digits(mut n: u64) -> u32 {
     let mut d: u32 = 0;
     while n != 0 {
         d += 1 << (3 * (n % 10));
@@ -78,25 +76,30 @@ pub fn solve() -> Vec<(u64, u64, u64)> {
     let mut v = Vec::new();
 
     // prime numbers less than nb with a tag representing the digits of the number
+    // items are sorted then grouped by their tag. That way primes forming permutations
+    // are grouped together since they share the same digits.
     let primes = PrimeCounter::new();
-    let primes_vec = primes.take_while(|x| x < &nb).filter(|x| x > &1000)
-                           .map(|x| PrimePerm{prime: x, perm: account_digits(x)}).collect::<Vec<_>>();
+    let prime_groups = primes.take_while(|x| x < &nb)
+                             .filter(|x| x > &1000)
+                             .map(|x| (count_digits(x), x))
+                             .sorted().into_iter()
+                             .group_by(|&(t,_)| t);
 
-    // a map for faster searching
-    let primes_map = primes_vec.iter().map(|x| (x.prime, x.perm)).collect::<HashMap<_,_>>();
+    // iterate over permutation groups
+    for (_, group) in prime_groups {
+        if group.len() < 3 {
+            continue;
+        }
 
-    for (i, p1) in primes_vec.iter().enumerate() {
-        for p2 in primes_vec.iter().skip(i+1) {
-            let p3v = 2 * p2.prime - p1.prime;
-            
-            // no need to try further, p3 would be too big
-            if p3v >= nb { break; }
+        for (i, p1) in group.iter().enumerate() {
+            for p2 in group.iter().skip(i+1) {
+                let p3v = 2 * p2.1 - p1.1;
 
-            if p1.perm == p2.perm {
-                if let Some(a) = primes_map.get(&p3v) {
-                    if *a == p1.perm {
-                        v.push((p1.prime, p2.prime, p3v));
-                    }
+                // no need to try further, p3 would be too big
+                if p3v >= nb { break; }
+
+                if let Some(p3) = group.iter().find(|&&x| x.1 == p3v) {
+                    v.push((p1.1, p2.1, p3.1));
                 }
             }
         }
@@ -117,7 +120,7 @@ mod tests {
     use test::{Bencher, black_box};
 
     #[test]
-    fn test_brute_49() {
+    fn test_49() {
         let s = solve();
         assert_eq!(2, s.len());
         assert_eq!(2969, s[1].0);
