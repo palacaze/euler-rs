@@ -16,49 +16,7 @@ extern crate test;
 extern crate itertools;
 use itertools::Itertools;
 
-// base struct for a prime numbers iterator, that stores encountered primes
-// in order to speed-up discovery of subsequent primes.
-#[derive(Debug)]
-struct PrimeCounter {
-    v : Vec<u64>,
-}
-
-impl PrimeCounter {
-    fn new() -> PrimeCounter {
-        PrimeCounter { v : Vec::new() }
-    }
-
-    fn is_prime(& self, n : u64) -> bool {
-        let lim = (n as f32).sqrt() as u64 + 1;
-        for x in &self.v {
-            if *x > lim { return true; }
-            if n % x == 0 { return false;
-            }
-        }
-        true
-    }
-}
-
-// prime numbers iterator
-impl Iterator for PrimeCounter {
-    type Item = u64;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let mut n : Self::Item = match self.v.last() {
-            Some(x) => x + 1,
-            None => 2,
-        };
-
-        loop {
-            if self.is_prime(n) {
-                self.v.push(n);
-                break;
-            }
-            n += 1;
-        }
-        Some(n)
-    }
-}
+extern crate euler;
 
 // with 4 digits, we need 3 bits per digit to account every digit,
 // this is usable to compare permutations for numbers up to 9999999
@@ -78,7 +36,7 @@ pub fn solve() -> Vec<(u64, u64, u64)> {
     // prime numbers less than nb with a tag representing the digits of the number
     // items are sorted then grouped by their tag. That way primes forming permutations
     // are grouped together since they share the same digits.
-    let primes = PrimeCounter::new();
+    let primes = euler::primes::Primes::new();
     let prime_groups = primes.take_while(|x| x < &nb)
                              .filter(|x| x > &1000)
                              .map(|x| (count_digits(x), x))

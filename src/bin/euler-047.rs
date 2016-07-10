@@ -14,51 +14,22 @@
 // Find the first four consecutive integers to have four distinct prime factors.
 // What is the first of these numbers?
 
-#![feature(step_by)]
-
 #![feature(test)]
 extern crate test;
 
+extern crate euler;
+
 const NUM: usize = 4;
 
-fn next_prime_factor(n: usize) -> usize {
-    if n == 1 { return 0; }
-    if n % 2 == 0 { return 2;  }
-
-    let lim = (n as f32).sqrt() as usize + 1;
-    for x in (3..lim).step_by(2) {
-        if n % x == 0 {
-            return x;
-        }
-    }
-
-    n
-}
-
-// a prime number has 0 prime factors
-fn prime_factors(n: usize) -> Vec<usize> {
-    let mut lst = Vec::new();
-    let mut r = n;
-    while r != 1 {
-        let p = next_prime_factor(r);
-        lst.push(p);
-        r /= p;
-    }
-    lst
-}
-
-// a prime number has 0 prime factors
-fn count_prime_factors(n: usize) -> usize {
-    let mut lst = prime_factors(n);
-    lst.sort();
-    lst.dedup();
-    lst.len()
+// a prime number has 1 prime factors
+fn count_prime_factors(n: u64) -> usize {
+    euler::primes::prime_factors(n).len()
 }
 
 pub fn solve() -> usize {
     let mut count = 0;
     for i in 644.. {
-        if count_prime_factors(i) >= NUM {
+        if count_prime_factors(i as u64) >= NUM {
             count += 1;
         }
         else {

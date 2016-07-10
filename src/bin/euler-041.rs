@@ -9,23 +9,7 @@
 // The best seems to be going backward from 987654321, we will test all digits permutations
 // for primes
 
-#[macro_use]
-extern crate itertools;
-use itertools::Itertools;
-
-
-fn is_prime(n : &usize) -> bool {
-    if *n == 1 { return false; }
-    if *n == 2 { return true;  }
-
-    let lim = (*n as f32).sqrt() as usize + 1;
-    for x in (3..lim).step(2) {
-        if *n % x == 0 {
-            return false;
-        }
-    }
-    true
-}
+extern crate euler;
 
 // Generate all the numbers through digits permutation from supplied list of digits.
 // The digit_set order is respected, ie if the digits in digit_set are sorted,
@@ -58,7 +42,7 @@ fn main() {
         // That way we know that the first encountered prime will be our answer
         let digits = (1..(i+1)).rev().collect::<Vec<_>>();
         for p in digit_permutations(&digits) {
-            if is_prime(&p) {
+            if euler::primes::is_prime(p as u64) {
                 println!("max = {:?}", p);
                 return;
             }

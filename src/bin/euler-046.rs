@@ -18,7 +18,7 @@
 #![feature(test)]
 extern crate test;
 
-fn is_prime_cached(n : usize, cache: &[usize]) -> bool {
+fn is_prime_inc(n : usize, cache: &[usize]) -> bool {
     let lim = (n as f32).sqrt() as usize + 1;
     for p in cache.iter().skip(1) {
         if *p > lim { break; }
@@ -32,7 +32,7 @@ pub fn solve() -> usize {
 
     'outer: for n in (9..).step_by(2) {
         // n is either prime, in that case we store it or it is not
-        if is_prime_cached(n, &primes) {
+        if is_prime_inc(n, &primes) {
             primes.push(n);
             continue;
         }
@@ -48,7 +48,7 @@ pub fn solve() -> usize {
         // if we get here that means we have our counter-example
         return n;
     }
-    
+
     0
 }
 

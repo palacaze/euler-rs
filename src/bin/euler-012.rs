@@ -17,25 +17,14 @@
 //
 // What is the value of the first triangle number to have over five hundred divisors?
 
-// here we now that if d is a divisor of n, then n/d is also one
-// that mean we can count up to sqrt(n), and then double the result
-// finally we add 1 and n
-fn count_divisors(n : u64) -> usize {
-    let s = (n as f64).sqrt() as u64 + 1;
-    let c = (2..s).filter(|x| n % x == 0).count();
-    let mut r = 2 * c + 2;
-    if s * s == n {
-        r += 1;
-    }
-    r
-}
+extern crate euler;
 
 fn main() {
     let nb = 500;
     let mut t = 1;
     for i in 2.. {
         t += i;
-        if count_divisors(t) > nb {
+        if euler::primes::divisors(t).len() > nb {
             println!("first = {}", t);
             break;
         }

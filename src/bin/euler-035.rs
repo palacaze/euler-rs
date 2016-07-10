@@ -9,21 +9,10 @@
 
 use std::collections::HashMap;
 
+extern crate euler;
+
 #[derive(Debug,PartialEq,Copy,Clone)]
 enum Circular { Untested, Yes, No }
-
-fn is_prime(n : &usize) -> bool {
-    if *n == 1 { return false; }
-    if *n == 2 { return true;  }
-
-    let lim = (*n as f32).sqrt() as usize + 1;
-    for x in 2..lim {
-        if *n % x == 0 {
-            return false;
-        }
-    }
-    true
-}
 
 fn no_pair_or_five_digit(n: &usize) -> bool {
     let mut q = *n;
@@ -73,7 +62,7 @@ fn circular_permutations(n: usize) -> Option<Vec<usize>> {
 
 fn main() {
     let nb = 1_000_000;
-    let mut primes = (10..nb).filter(no_pair_or_five_digit).filter(is_prime)
+    let mut primes = (10..nb).filter(no_pair_or_five_digit).filter(|x| euler::primes::is_prime(*x as u64))
                              .map(|x| (x, Circular::Untested)).collect::<HashMap<_,_>>();
 
     for (n, c) in &primes.clone() {

@@ -17,21 +17,11 @@
 #[macro_use]
 extern crate itertools;
 
+extern crate euler;
+use euler::primes;
+
 use std::ops::Add;
 use itertools::Itertools;
-
-fn is_prime(n : &usize) -> bool {
-    if *n == 1 { return false; }
-    if *n == 2 { return true;  }
-
-    let lim = (*n as f64).sqrt() as usize + 1;
-    for x in 2..lim {
-        if *n % x == 0 {
-            return false;
-        }
-    }
-    true
-}
 
 fn is_truncable_prime(n : &usize) -> bool {
     let mut q = *n;
@@ -39,9 +29,9 @@ fn is_truncable_prime(n : &usize) -> bool {
 
     for i in 0.. {
         if q == 0 { break; }
-        if !is_prime(&q) { return false; }
+        if ! primes::is_prime(q as u64) { return false; }
         r += (q % 10) * 10usize.pow(i);
-        if !is_prime(&r) { return false; }
+        if ! primes::is_prime(r as u64) { return false; }
         q /= 10;
     }
 
@@ -84,3 +74,4 @@ fn main() {
     let r2 = (2..7).flat_map(|i| truncable_primes(i).into_iter()).collect_vec();
     println!("{:?} -> sum = {}", r2, r2.iter().fold(0, Add::add));
 }
+

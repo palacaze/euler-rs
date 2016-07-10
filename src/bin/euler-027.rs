@@ -20,28 +20,12 @@
 // Find the product of the coefficients, a and b, for the quadratic expression that produces the maximum number
 // of primes for consecutive values of n, starting with n = 0.
 
-fn is_prime(n : u64) -> bool {
-    if n == 1 {
-        return false;
-    }
-    if n == 2 {
-        return true;
-    }
-
-    let lim = (n as f64).sqrt() as u64 + 1;
-
-    for x in 2..lim {
-        if n % x == 0 {
-            return false;
-        }
-    }
-    true
-}
+extern crate euler;
 
 fn count_primes(a: i64, b: i64) -> usize {
     (0..).take_while(|n| {
-            let r = n*n + a*n + b;
-            if r <= 0 {false} else {is_prime(r as u64)}
+            let r = n * (n + a) + b;
+            if r <= 0 { false } else { euler::primes::is_prime(r as u64) }
         }).count()
 }
 

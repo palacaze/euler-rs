@@ -8,6 +8,8 @@
 //
 // Evaluate the sum of all the amicable numbers under 10000.
 
+extern crate euler;
+
 #[derive(Debug, Copy, Clone)]
 struct Num {
     amical : bool,
@@ -18,24 +20,19 @@ struct Num {
 // that mean we can search d up to sqrt(n), and add its n/d counterpart
 // finally we add 1 and possibly sqrt(n)
 fn sum_divisors(n : usize) -> usize {
-    if n == 1 {
-        return 1;
-    }
-
-    let mut s = (n as f64).sqrt() as usize;
-    let square = s * s == n;
-    if !square { s += 1 }
-
-    let sum = (2..s).filter(|x| n % x == 0).fold(0, |a, d| a + d + n / d);
-    1 + sum + if square { s } else { 0 }
+    let mut divs = euler::primes::divisors(n as u64);
+    divs.pop();  // we don't count the number itself as a divisor
+    divs.iter().fold(0, |a, c| a + *c as usize)
 }
 
 // we search all the dividors sums, stored in a vector and remove uniques
 fn main() {
+    println!("{} -> {}", 220, sum_divisors(220));
+    println!("{} -> {}", 284, sum_divisors(284));
     let nb = 10000;
     let mut res = vec![Num { amical : false, sum : 0 } ; nb];
 
-    for i in 1..nb {
+    for i in 2..nb {
         if res[i].sum > 0 {
             continue;
         }
