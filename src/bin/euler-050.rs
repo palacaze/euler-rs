@@ -21,7 +21,44 @@ use itertools::Itertools;
 use itertools::FoldWhile::{Continue, Done};
 
 
-pub fn solve() -> (u64, u64, u64) {
+pub fn solve_incremental() -> (u64, u64, u64) {
+    let nb = 1_000_000u64;
+
+    // build initial list of cumulated sum of primes until nb
+    let primes = euler::primes::Primes::new();
+    let psum = primes.scan(0, |sum, p| {
+        let old = *sum;
+        *sum += p;
+        Some(old)
+    }).take_while(|x| *x < nb).collect::<Vec<_>>();
+
+    let mut good_start = 0;
+    let mut start = 0;
+    let mut end = 0;
+
+    // iteratively start the first prime from the end of the list of cumulated sums
+    loop {
+        // repeat until there is more removed elements from the start than we could add
+        // from the end, meaning there is no hope to get a better result
+        if psum.len() - end < start - good_start {
+            break;
+        }
+
+        // substract the first element and search again for a sum with more terms
+        let rem = psum[start];
+        let last_idx = psum.iter().skip(end).rev().take_while(|&x| !euler::primes::is_prime(*x - rem)).count();
+        if last_idx < psum.len() - end - 1 {
+            end = psum.len() - last_idx - 1;
+            good_start = start;
+        }
+
+        start += 1;
+    }
+
+    (psum[good_start+1]-psum[good_start] as u64, (end-good_start) as u64, psum[end] - psum[good_start])
+}
+
+pub fn solve_brute() -> (u64, u64, u64) {
     let nb = 1_000_000u64;
     let primes = euler::primes::generate_primes(nb);
 
@@ -60,7 +97,10 @@ pub fn solve() -> (u64, u64, u64) {
 }
 
 fn main() {
-    let b = solve();
+    let b = solve_brute();
+    println!("best count: {} starting from prime {}, sum prime: {}", b.1, b.0, b.2);
+
+    let b = solve_incremental();
     println!("best count: {} starting from prime {}, sum prime: {}", b.1, b.0, b.2);
 }
 
@@ -69,10 +109,23 @@ mod tests {
     use super::*;
     use test::{Bencher, black_box};
 
+    // too long
     #[test]
-    fn test_50() {
-        let s = solve();
+    #[ignore]
+    fn test_brute_50() {
+        let s = solve_brute();
         assert_eq!(997651, s.2);
+    }
+
+    #[test]
+    fn test_incremental_50() {
+        let s = solve_incremental();
+        assert_eq!(997651, s.2);
+    }
+
+    #[bench]
+    fn bench_incremental_50(b: &mut Bencher) {
+        b.iter(|| black_box(solve_incremental()));
     }
 }
 
