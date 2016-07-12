@@ -27,35 +27,33 @@ pub fn solve_incremental() -> (u64, u64, u64) {
     // build initial list of cumulated sum of primes until nb
     let primes = euler::primes::Primes::new();
     let psum = primes.scan(0, |sum, p| {
-        let old = *sum;
-        *sum += p;
-        Some(old)
-    }).take_while(|x| *x < nb).collect::<Vec<_>>();
+                          let old = *sum;
+                          *sum += p;
+                          Some(old)
+                     }).take_while(|x| *x < nb).collect::<Vec<_>>();
 
-    let mut good_start = 0;
     let mut start = 0;
     let mut end = 0;
 
-    // iteratively start the first prime from the end of the list of cumulated sums
-    loop {
-        // repeat until there is more removed elements from the start than we could add
+    // repeatedly search the first prime from the end of the list of the cumulated
+    // sums, removing one prime from beginning of sum at each iteration
+    for s in 0.. {
+        // repeat until there is more removed elements from the beginning than we could add
         // from the end, meaning there is no hope to get a better result
-        if psum.len() - end < start - good_start {
+        if psum.len() - end < s - start {
             break;
         }
 
         // substract the first element and search again for a sum with more terms
-        let rem = psum[start];
-        let last_idx = psum.iter().skip(end).rev().take_while(|&x| !euler::primes::is_prime(*x - rem)).count();
-        if last_idx < psum.len() - end - 1 {
-            end = psum.len() - last_idx - 1;
-            good_start = start;
+        let rem = psum[s];
+        let e = psum.iter().skip(end).rev().take_while(|&x| !euler::primes::is_prime(*x - rem)).count();
+        if e < psum.len() - end - 1 {
+            end = psum.len() - e - 1;
+            start = s;
         }
-
-        start += 1;
     }
 
-    (psum[good_start+1]-psum[good_start] as u64, (end-good_start) as u64, psum[end] - psum[good_start])
+    (psum[start+1]-psum[start] as u64, (end-start) as u64, psum[end] - psum[start])
 }
 
 pub fn solve_brute() -> (u64, u64, u64) {
