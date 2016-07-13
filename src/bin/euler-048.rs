@@ -7,17 +7,16 @@
 #![feature(test)]
 extern crate test;
 
-extern crate num;
-use num::bigint::{BigUint, ToBigUint};
-use num::cast::ToPrimitive;
+extern crate gmp;
+use gmp::mpz::Mpz;
 
 const NUM: usize = 1001;
 const TENTEN: usize = 10_000_000_000;
 
 pub fn solve_brute() -> usize {
-    let div = num::pow(10u64.to_biguint().unwrap(), 10);
-    let sum : BigUint = (1..NUM).map(|i| num::pow(i.to_biguint().unwrap(), i) % &div).fold(num::zero(), |a,c|a+c);
-    sum.to_usize().unwrap() % TENTEN
+    let div = Mpz::from(10).pow(10);
+    let sum = (1..NUM).map(|i| Mpz::from(i as u64).pow(i as u32) % &div).fold(Mpz::zero(), |a,c|a+c);
+    (Into::<Option<u64>>::into(&sum).unwrap() as usize) % TENTEN
 }
 
 fn exp_mod(mut b: usize, mut e: usize) -> usize {

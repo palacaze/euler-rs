@@ -21,36 +21,62 @@
 //
 // What is the index of the first term in the Fibonacci sequence to contain 1000 digits?
 
-extern crate num;
-use num::bigint::{BigUint, ToBigUint}; 
+#![feature(test)]
+extern crate test;
+
+extern crate gmp;
+use gmp::mpz::Mpz;
+
+use std::mem;
 
 #[derive(Debug)]
 struct FibCounter {
-    a : BigUint,
-    b : BigUint,
+    a : Mpz,
+    b : Mpz,
 }
 
 impl FibCounter {
     fn new() -> FibCounter {
-        FibCounter { a : num::one(), b : num::one() }
+        FibCounter { a : Mpz::one(), b : Mpz::one() }
     }
 }
 
 impl Iterator for FibCounter {
-    type Item = BigUint;
+    type Item = Mpz;
     fn next(&mut self) -> Option<Self::Item> {
         let c = &self.a + &self.b;
-        self.a = self.b.clone();
-        self.b = c;
+        self.a = mem::replace(&mut self.b, c);
         Some(self.a.clone())
     }
 }
 
-fn main() {
+pub fn solve() -> usize {
     let fib = FibCounter::new();
-    let lim = num::pow(10u64.to_biguint().unwrap(), 999);
+    let lim = Mpz::from(10).pow(999);
     let iter = fib.take_while(|x| x < &lim).count();
 
     // + 2 because we didn't step over F(0), and iter stop 1 before our goal
-    println!("iters= {:?}", iter + 2); 
+    iter + 2
 }
+
+fn main() {
+    let val = solve();
+    println!("iters = {:?}", val);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test::{Bencher, black_box};
+
+    #[test]
+    fn test_25() {
+        assert_eq!(4782, solve());
+    }
+
+    #[bench]
+    fn bench_25(b: &mut Bencher) {
+        b.iter(|| black_box(solve()));
+    }
+}
+
