@@ -1,13 +1,12 @@
-// #[macro_use]
+extern crate test;
+
 extern crate itertools;
 use self::itertools::Itertools;
 
-// use std::num::{Int, NumCast};
 use std::collections::HashSet;
 
 // base struct for a prime numbers iterator, that stores encountered primes
 // in order to speed-up discovery of subsequent primes.
-// #[derive(Debug)]
 pub struct Primes {
     v: Vec<u64>,
 }
@@ -21,8 +20,7 @@ impl Primes {
         let lim = (n as f32).sqrt() as u64 + 1;
         for x in &self.v {
             if *x > lim { return true; }
-            if n % x == 0 { return false;
-            }
+            if n % x == 0 { return false; }
         }
         true
     }
@@ -52,9 +50,8 @@ impl Iterator for Primes {
 
 pub fn generate_primes(n: u64) -> Vec<u64> {
     let primes = Primes::new();
-    primes.take_while(|x| x < &n).collect::<Vec<_>>()
+    primes.take_while(|x| x <= &n).collect::<Vec<_>>()
 }
-
 
 pub fn is_prime(n: u64) -> bool {
     if n == 1 { return false; }
@@ -148,6 +145,7 @@ mod tests {
     use std::collections::HashSet;
     use std::iter::FromIterator;
     use super::*;
+    use super::test::{Bencher, black_box};
 
     #[test]
     fn test_primes_iter() {
@@ -215,6 +213,16 @@ mod tests {
         assert_eq!(&prime_factors(223u64), &[(223, 1)]);
         assert_eq!(&prime_factors(225u64), &[(3, 2), (5, 2)]);
         assert_eq!(&prime_factors(224u64), &[(2, 5), (7, 1)]);
+    }
+
+    #[bench]
+    fn bench_generate_primes_100(b: &mut Bencher) {
+        b.iter(|| black_box(generate_primes(100)));
+    }
+
+    #[bench]
+    fn bench_generate_primes_10_000(b: &mut Bencher) {
+        b.iter(|| black_box(generate_primes(10_000)));
     }
 }
 
