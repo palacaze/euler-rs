@@ -17,8 +17,8 @@ impl Primes {
     }
 
     fn is_prime(&self, n: u64) -> bool {
-        let lim = (n as f32).sqrt() as u64 + 1;
-        for x in &self.v {
+        let lim = (n as f64).sqrt() as u64 + 1;
+        for x in (&self.v).iter().skip(1) {
             if *x > lim { return true; }
             if n % x == 0 { return false; }
         }
@@ -58,7 +58,7 @@ pub fn is_prime(n: u64) -> bool {
     if n == 2 { return true; }
     if n % 2 == 0 { return false; }
 
-    let lim = (n as f32).sqrt() as u64 + 1;
+    let lim = (n as f64).sqrt() as u64 + 1;
     for x in (3..lim).step(2) {
         if n % x == 0 {
             return false;
@@ -81,7 +81,7 @@ pub fn is_prime_with_set(n: u64, set: &HashSet<u64>) -> bool {
 pub fn divisors(n: u64) -> Vec<u64> {
     if n == 1 { return vec![1]; }
 
-    let mut s = (n as f32).sqrt() as u64;
+    let mut s = (n as f64).sqrt() as u64;
     let square = s * s == n;
     if !square { s += 1 }
 
@@ -107,7 +107,7 @@ fn next_prime_factor(n: u64) -> u64 {
     if n == 1 { return 0; }
     if n % 2 == 0 { return 2; }
 
-    let lim = (n as f32).sqrt() as u64 + 1;
+    let lim = (n as f64).sqrt() as u64 + 1;
     for x in (3..lim).step(2) {
         if n % x == 0 {
             return x;
