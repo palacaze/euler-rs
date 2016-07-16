@@ -51,6 +51,8 @@ use std::io::Read;
 use std::error::Error;
 use std::fs::File;
 use std::path::Path;
+use std::marker::Sized;
+use std::ops::AddAssign;
 
 // card suit
 #[derive(Debug,Copy,Clone,PartialEq)]
@@ -64,12 +66,10 @@ struct Card {
     suit: CardSuit,
 }
 
-type Hand = [Card; 5];
-
 // bit offset for the hand grading system
 #[derive(Debug,Copy,Clone,PartialEq)]
 enum HandRank {
-    // the 20th first bits are use for the 5 cards, 4 bits each
+    // the 20 first bits are used to store the 5 cards, 4 bits each
     Pair1    = 20,
     Pair2    = 21,
     Kind3    = 22,
@@ -83,14 +83,19 @@ enum HandRank {
 
 type HandGrade = u32;
 
-// add card value v in slot n
-fn add_val(g: &mut HandGrade, s: usize, v: u32) {
-    *g += v << ((s-1)*4);
+trait Grade : Sized + AddAssign<u32> {
+    // add card value v in slot n (from 0 to 4)
+    fn add_val(&mut self, s: usize, v: u32) {
+        *self += v << (s*4);
+    }
+
+    // activate a rank
+    fn set_rank(&mut self, h: HandRank) {
+        *self += 1u32 << (h as u32);
+    }
 }
 
-fn add_rank(g: &mut HandGrade, h: HandRank) {
-    *g += 1u32 << (h as u32);
-}
+impl Grade for HandGrade {}
 
 // assign a grade that represents uniquely the value of a hand
 fn grade_hand(h: &[Card]) -> HandGrade {
@@ -103,24 +108,24 @@ fn grade_hand(h: &[Card]) -> HandGrade {
     let consecutive = c[1].val == c[0].val + 1 && c[2].val == c[1].val + 1 &&
                       c[3].val == c[2].val + 1 && c[4].val == c[3].val + 1;
     if consecutive {
-        add_rank(&mut grade, HandRank::Straight);
+        grade.set_rank(HandRank::Straight);
     }
 
     // flush
     let flush = h.iter().all(|&v| v.suit == h[0].suit);
     if flush {
-        add_rank(&mut grade, HandRank::Flush);
+        grade.set_rank(HandRank::Flush);
 
         if consecutive {
             // royal flush
             if c[4].val == ACE {
-                add_rank(&mut grade, HandRank::RFlush);
+                grade.set_rank(HandRank::RFlush);
                 return grade;
             }
             // straigh flush
             else {
-                add_rank(&mut grade, HandRank::SFlush);
-                add_val(&mut grade, 5, c[0].val);
+                grade.set_rank(HandRank::SFlush);
+                grade.add_val(4, c[0].val);
                 return grade;
             }
         }
@@ -140,31 +145,31 @@ fn grade_hand(h: &[Card]) -> HandGrade {
     for (i, n) in vals.iter().enumerate() {
         // 4 of a kind
         if n == &4 {
-            add_rank(&mut grade, HandRank::Kind4);
-            add_val(&mut grade, 5, i as u32);
+            grade.set_rank(HandRank::Kind4);
+            grade.add_val(4, i as u32);
         }
         // 3 of a kind
         else if n == &3 {
-            add_rank(&mut grade, HandRank::Kind3);
-            add_val(&mut grade, 5, i as u32);
+            grade.set_rank(HandRank::Kind3);
+            grade.add_val(4, i as u32);
             trios += 1;
         }
         // pair
         else if n == &2 {
-            add_rank(&mut grade, if pairs == 0 { HandRank::Pair1 } else { HandRank::Pair2 });
-            add_val(&mut grade, 4 + pairs, i as u32);
+            grade.set_rank(if pairs == 0 { HandRank::Pair1 } else { HandRank::Pair2 });
+            grade.add_val(3 + pairs, i as u32);
             pairs += 1;
         }
         // solo
         else if n == &1 {
+            grade.add_val(solos, i as u32);
             solos += 1;
-            add_val(&mut grade, solos, i as u32);
         }
     }
 
     // let's fot forget the full house
     if pairs > 0 && trios > 0 {
-        add_rank(&mut grade, HandRank::House);
+        grade.set_rank(HandRank::House);
     }
 
     grade
@@ -174,23 +179,15 @@ fn parse_card(s: &str) -> Card {
     let chars = s.chars().collect::<Vec<_>>();
     assert_eq!(chars.len(), 2);
     let v = match chars[0] {
-        '2' => 2,
-        '3' => 3,
-        '4' => 4,
-        '5' => 5,
-        '6' => 6,
-        '7' => 7,
-        '8' => 8,
-        '9' => 9,
         'T' => 10,
         'J' => 11,
         'Q' => 12,
         'K' => 13,
         'A' => ACE,
-        _   => panic!("wrong card value"),
+         x  => x.to_digit(10).expect("wrong card value")
     };
 
-    let k = match chars[1] {
+    let s = match chars[1] {
         'H' => CardSuit::H,
         'C' => CardSuit::C,
         'S' => CardSuit::S,
@@ -198,7 +195,7 @@ fn parse_card(s: &str) -> Card {
         _   => panic!("wrong card kind"),
     };
 
-    Card { val: v, suit: k }
+    Card { val: v, suit: s }
 }
 
 fn main() {
