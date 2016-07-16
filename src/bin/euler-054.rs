@@ -51,82 +51,81 @@ use std::io::Read;
 use std::error::Error;
 use std::fs::File;
 use std::path::Path;
-use std::marker::Sized;
 use std::ops::AddAssign;
 
 // card suit
-#[derive(Debug,Copy,Clone,PartialEq)]
-enum CardSuit { H, C, S, D }
+#[derive(Copy,Clone,PartialEq)]
+enum Suit { H, C, S, D }
 
 const ACE: u32 = 14;
 
-#[derive(Debug,Copy,Clone,PartialEq)]
+#[derive(Copy,Clone)]
 struct Card {
     val: u32,
-    suit: CardSuit,
+    suit: Suit,
 }
 
 // bit offset for the hand grading system
-#[derive(Debug,Copy,Clone,PartialEq)]
-enum HandRank {
+enum Rank {
     // the 20 first bits are used to store the 5 cards, 4 bits each
-    Pair1    = 20,
-    Pair2    = 21,
-    Kind3    = 22,
-    Flush    = 23,
-    Straight = 24,
-    House    = 25,
-    Kind4    = 26,
-    SFlush   = 27,
-    RFlush   = 28,
+    Pair1 = 20,
+    Pair2,
+    Kind3,
+    Flush,
+    Straight,
+    House,
+    Kind4,
+    SFlush,
+    RFlush,
 }
 
-type HandGrade = u32;
+type Score = u32;
 
 trait Grade : Sized + AddAssign<u32> {
     // add card value v in slot n (from 0 to 4)
-    fn add_val(&mut self, s: usize, v: u32) {
-        *self += v << (s*4);
+    fn add_val(&mut self, slot: usize, value: u32) {
+        *self += value << (4 * slot);
     }
 
     // activate a rank
-    fn set_rank(&mut self, h: HandRank) {
-        *self += 1u32 << (h as u32);
+    fn set_rank(&mut self, rank: Rank) {
+        *self += 1u32 << (rank as u32);
     }
 }
 
-impl Grade for HandGrade {}
+impl Grade for Score {}
 
-// assign a grade that represents uniquely the value of a hand
-fn grade_hand(h: &[Card]) -> HandGrade {
-    let mut grade: HandGrade = 0;
 
-    let mut c: [Card; 5] = [h[0], h[1], h[2], h[3], h[4]];
-    c.sort_by(|a, b| (a.val as u32).cmp(&(b.val as u32)));
+// assign a score that represents uniquely the value of a hand
+fn grade_hand(h: &[Card]) -> Score {
+    let mut score: Score = 0;
+
+    let mut c = h.to_vec();
+    c.sort_by(|a, b| (a.val).cmp(&(b.val)));
 
     // consecutive
     let consecutive = c[1].val == c[0].val + 1 && c[2].val == c[1].val + 1 &&
                       c[3].val == c[2].val + 1 && c[4].val == c[3].val + 1;
     if consecutive {
-        grade.set_rank(HandRank::Straight);
+        score.set_rank(Rank::Straight);
     }
 
     // flush
     let flush = h.iter().all(|&v| v.suit == h[0].suit);
     if flush {
-        grade.set_rank(HandRank::Flush);
+        score.set_rank(Rank::Flush);
 
         if consecutive {
             // royal flush
             if c[4].val == ACE {
-                grade.set_rank(HandRank::RFlush);
-                return grade;
+                score.set_rank(Rank::RFlush);
+                return score;
             }
             // straigh flush
             else {
-                grade.set_rank(HandRank::SFlush);
-                grade.add_val(4, c[0].val);
-                return grade;
+                score.set_rank(Rank::SFlush);
+                score.add_val(4, c[0].val);
+                return score;
             }
         }
     }
@@ -145,34 +144,34 @@ fn grade_hand(h: &[Card]) -> HandGrade {
     for (i, n) in vals.iter().enumerate() {
         // 4 of a kind
         if n == &4 {
-            grade.set_rank(HandRank::Kind4);
-            grade.add_val(4, i as u32);
+            score.set_rank(Rank::Kind4);
+            score.add_val(4, i as u32);
         }
         // 3 of a kind
         else if n == &3 {
-            grade.set_rank(HandRank::Kind3);
-            grade.add_val(4, i as u32);
+            score.set_rank(Rank::Kind3);
+            score.add_val(4, i as u32);
             trios += 1;
         }
         // pair
         else if n == &2 {
-            grade.set_rank(if pairs == 0 { HandRank::Pair1 } else { HandRank::Pair2 });
-            grade.add_val(3 + pairs, i as u32);
+            score.set_rank(if pairs == 0 { Rank::Pair1 } else { Rank::Pair2 });
+            score.add_val(3 + pairs, i as u32);
             pairs += 1;
         }
         // solo
         else if n == &1 {
-            grade.add_val(solos, i as u32);
+            score.add_val(solos, i as u32);
             solos += 1;
         }
     }
 
     // let's fot forget the full house
     if pairs > 0 && trios > 0 {
-        grade.set_rank(HandRank::House);
+        score.set_rank(Rank::House);
     }
 
-    grade
+    score
 }
 
 fn parse_card(s: &str) -> Card {
@@ -188,10 +187,10 @@ fn parse_card(s: &str) -> Card {
     };
 
     let s = match chars[1] {
-        'H' => CardSuit::H,
-        'C' => CardSuit::C,
-        'S' => CardSuit::S,
-        'D' => CardSuit::D,
+        'H' => Suit::H,
+        'C' => Suit::C,
+        'S' => Suit::S,
+        'D' => Suit::D,
         _   => panic!("wrong card kind"),
     };
 
@@ -224,6 +223,6 @@ fn main() {
                 .filter(|&(g1, g2)| g1 > g2)
                 .count();
 
-    println!("Player 1 wins {} hand", count);
+    println!("Player 1 wins {} hands", count);
 }
 
