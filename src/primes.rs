@@ -16,15 +16,6 @@ impl Primes {
     pub fn new() -> Primes {
         Primes { v: Vec::new() }
     }
-
-    fn is_prime(&self, n: u64) -> bool {
-        let lim = (n as f64).sqrt() as u64 + 1;
-        for x in (&self.v).iter().skip(1) {
-            if *x > lim { return true; }
-            if n % x == 0 { return false; }
-        }
-        true
-    }
 }
 
 // prime numbers iterator
@@ -39,7 +30,7 @@ impl Iterator for Primes {
         };
 
         loop {
-            if self.is_prime(n) {
+            if is_prime_with_cache(n, &self.v) {
                 self.v.push(n);
                 break;
             }
@@ -68,10 +59,19 @@ pub fn is_prime(n: u64) -> bool {
     true
 }
 
-// Use a list of precalculated primes to lookup the prime.
-// Prerequisite: the supplied list must be sorted
+// Use a list of precalculated primes to speedup primality computation
+// NOTE: this is not a mere lookup, the prerequisite is that every prime
+// under sqrt(n) is un the cache
+// for a lookup use binary_search()
 pub fn is_prime_with_cache(n: u64, lst: &[u64]) -> bool {
-    lst.binary_search(&n).is_ok()
+    if n == 1 { return false; }
+    if n == 2 { return true; }
+    let lim = n.sqrt() + 1;
+    for x in lst {
+        if *x > lim { return true; }
+        if n % x == 0 { return false; }
+    }
+    true
 }
 
 // Lookup the prime from a set of precalculated primes
@@ -168,7 +168,7 @@ mod tests {
 
     #[test]
     fn test_is_prime_with_cache() {
-        let cache = generate_primes(1_000_000u64);
+        let cache = generate_primes(1_000u64);
         assert_eq!(is_prime_with_cache(1u64, &cache), false);
         assert_eq!(is_prime_with_cache(2u64, &cache), true);
         assert_eq!(is_prime_with_cache(3u64, &cache), true);
