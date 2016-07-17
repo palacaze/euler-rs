@@ -47,12 +47,12 @@ pub fn generate_primes(n: u64) -> Vec<u64> {
 
 pub fn is_prime(n: u64) -> bool {
     if n == 1 { return false; }
-    if n == 2 { return true; }
-    if n % 2 == 0 { return false; }
+    if n == 2 || n == 3 { return true; }
+    if n % 2 == 0 || n % 3 == 0 { return false; }
 
     let lim = n.sqrt() + 1;
-    for x in (3..lim).step(2) {
-        if n % x == 0 {
+    for x in (5..lim).step(6) {
+        if n % x == 0 || n % (x+2) == 0 {
             return false;
         }
     }
