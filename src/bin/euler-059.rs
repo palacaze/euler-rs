@@ -30,6 +30,9 @@
 #![feature(test)]
 extern crate test;
 
+extern crate itertools;
+use itertools::Itertools;
+
 extern crate permutohedron;
 use permutohedron::Heap;
 
@@ -48,7 +51,7 @@ fn decrypt(data: &[u8], key: &[u8]) -> Vec<u8> {
     data.iter().zip(key.iter().cycle()).map(|(d,k)| d^k).collect::<Vec<_>>()
 }
 
-pub fn solve(path: &str) -> (usize, String) {
+fn read_data(path: &str) -> Vec<u8> {
     let path = Path::new(&path);
     let display = path.display();
 
@@ -65,10 +68,31 @@ pub fn solve(path: &str) -> (usize, String) {
     };
 
     // parsing
-    let data = data.lines().nth(0).unwrap().split(',').map(|c| u8::from_str(c).unwrap()).collect::<Vec<_>>();
+    data.lines().nth(0).unwrap().split(',').map(|c| u8::from_str(c).unwrap()).collect::<Vec<_>>()
+}
+
+pub fn solve_simpler(path: &str) -> (usize, String) {
+    let data = read_data(path);
 
     // letters frequency analysis: in a 1200 letters text,
-    // we expect at least 200 spaces, the most probable caracter
+    // we expect at least 200 spaces, the most probable character
+    // we step 3 times over the data with a stride to get in turn each letter of the password
+    let mut key = Vec::new();
+    for i in 0..3 {
+        let l = (A..Z+1).map(|k| (data.iter().skip(i).step(3).map(|x| x^k).filter(|&c| c == SPACE).count(), k))
+                        .sorted().last().unwrap().1;
+        key.push(l);
+    }
+
+    let txt = String::from_utf8(decrypt(&data, &key)).unwrap();
+    (txt.chars().fold(0, |a, c| a + c as usize), txt)
+}
+
+pub fn solve(path: &str) -> (usize, String) {
+    let data = read_data(path);
+
+    // letters frequency analysis: in a 1200 letters text,
+    // we expect at least 200 spaces, the most probable character
     let mut occ = (A..Z+1).map(|k| (decrypt(&data, &[k]).iter().filter(|&c| *c == SPACE).count(), k))
                           .collect::<Vec<_>>();
 
@@ -98,7 +122,7 @@ pub fn solve(path: &str) -> (usize, String) {
 
 fn main() {
     let path: String = env::args().nth(1).expect("Must supply a file name");
-    let s = solve(&path);
+    let s = solve_simpler(&path);
     println!("text: {:?}", s.1);
     println!("key sum: {}", s.0);
 }
@@ -109,16 +133,29 @@ mod tests {
     use test::{Bencher, black_box};
 
     #[test]
-    fn test_58() {
+    fn test_59() {
         let path = "data/p059_cipher.txt";
         let s = solve(&path);
         assert_eq!(107359, s.0);
     }
 
+    #[test]
+    fn test_simpler_59() {
+        let path = "data/p059_cipher.txt";
+        let s = solve_simpler(&path);
+        assert_eq!(107359, s.0);
+    }
+
     #[bench]
-    fn bench_58(b: &mut Bencher) {
+    fn bench_59(b: &mut Bencher) {
         let path = "data/p059_cipher.txt";
         b.iter(|| black_box(solve(&path)));
+    }
+
+    #[bench]
+    fn bench_simpler_59(b: &mut Bencher) {
+        let path = "data/p059_cipher.txt";
+        b.iter(|| black_box(solve_simpler(&path)));
     }
 }
 
