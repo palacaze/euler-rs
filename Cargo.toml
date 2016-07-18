@@ -7,3 +7,4 @@ authors = ["Pierre-Antoine Lacaze <pa.lacaze@laposte.net>"]
 ndarray = "0.6"
 itertools = "0.4"
 gmp = "0.3"
+permutohedron = "0.2"

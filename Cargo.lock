@@ -5,6 +5,7 @@ dependencies = [
  "gmp 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "itertools 0.4.16 (registry+https://github.com/rust-lang/crates.io-index)",
  "ndarray 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "permutohedron 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -52,5 +53,10 @@ dependencies = [
 [[package]]
 name = "num-traits"
 version = "0.1.32"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "permutohedron"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
