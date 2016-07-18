@@ -18,7 +18,16 @@ pub trait Sqrt : Sized + Copy + Mul<Output=Self> + Eq {
     }
 }
 
-macro_rules! int_sqrt_for {
+/// A few methods that ease digits manipulation
+pub trait Digits {
+    /// get the list of digits of a number
+    fn to_digits(&self) -> Vec<u8>;
+
+    /// create a number from a list of digits
+    fn from_digits(digits: &[u8]) -> Self;
+}
+
+macro_rules! int_digits_and_sqrt_for {
     ( $( $t:ty ),* ) => {
         $(
             impl Sqrt for $t {
@@ -27,10 +36,26 @@ macro_rules! int_sqrt_for {
                     if (s+1)*(s+1) == *self { s+1 } else { s }
                 }
             }
+
+            impl Digits for $t {
+                fn to_digits(&self) -> Vec<u8> {
+                    let mut n = *self;
+                    let mut v = Vec::new();
+                    while n != 0 {
+                        v.push((n % 10) as u8);
+                        n /= 10;
+                    }
+                    v
+                }
+
+                fn from_digits(digits: &[u8]) -> Self {
+                    digits.iter().rev().fold(0, |a, &d| 10 * a + d as Self)
+                }
+            }
         )*
     }
 }
-int_sqrt_for!(usize,u8,u16,u32,u64);
+int_digits_and_sqrt_for!(usize,u8,u16,u32,u64);
 
 /// Parity trait
 pub trait Parity {
