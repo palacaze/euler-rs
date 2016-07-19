@@ -40,7 +40,7 @@ pub fn solve() -> (usize, [usize; 5]) {
 
     // a cache of primes for faster lookup and function to test
     // concatenated primes using it
-    let sieve = primal::Sieve::new(lim * lim);
+    let sieve = primal::Sieve::new(lim * (1 + next_pow10(lim)));
     let are_coprimes = |a: &DPrime, b: &DPrime| {
         b.n > a.n && sieve.is_prime(a.n + a.fac * b.n) &&
                      sieve.is_prime(b.n + b.fac * a.n)
