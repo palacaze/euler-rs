@@ -12,6 +12,8 @@ extern crate test;
 extern crate itertools;
 use itertools::Itertools;
 
+use std::collections::HashMap;
+
 // a tag that represents a set of digits.
 // All the permutations of these digits will produce the same tag
 // with 6 bits per digit we can handle numbers up to 127 digits long
@@ -22,6 +24,21 @@ fn permut_tag(mut n: u64) -> u64 {
         n /= 10;
     }
     d
+}
+
+pub fn solve_looped() -> u64 {
+    let mut hash = HashMap::new();
+
+    for i in 10.. {
+        let c = i * i * i;
+        let e = hash.entry(permut_tag(c)).or_insert(Vec::new());
+        e.push(c);
+        if e.len() == 5 {
+            return e[0];
+        }
+    }
+
+    0
 }
 
 pub fn solve() -> u64 {
@@ -52,6 +69,9 @@ pub fn solve() -> u64 {
 fn main() {
     let s = solve();
     println!("minimal cube: {}", s);
+
+    let s = solve_looped();
+    println!("minimal cube: {}", s);
 }
 
 #[cfg(test)]
@@ -68,5 +88,10 @@ mod tests {
     #[bench]
     fn bench_62(b: &mut Bencher) {
         b.iter(|| black_box(solve()));
+    }
+
+    #[bench]
+    fn bench_loop_62(b: &mut Bencher) {
+        b.iter(|| black_box(solve_looped()));
     }
 }
