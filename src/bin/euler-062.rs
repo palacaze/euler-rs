@@ -1,10 +1,10 @@
-// Permuted multiples
+// Cubic permutations
 //
-// It can be seen that the number, 125874, and its double, 251748,
-// contain exactly the same digits, but in a different order.
+// The cube, 41063625 (3453), can be permuted to produce two other cubes: 56623104 (3843) and
+// 66430125 (4053). In fact, 41063625 is the smallest cube which has exactly three permutations of
+// its digits which are also cube.
 //
-// Find the smallest positive integer, x, such that 2x, 3x, 4x, 5x, and 6x,
-// contain the same digits.
+// Find the smallest cube for which exactly five permutations of its digits are cube.
 
 #![feature(test)]
 extern crate test;
@@ -25,8 +25,14 @@ fn permut_tag(mut n: u64) -> u64 {
 }
 
 pub fn solve() -> u64 {
-    let perms = (1..10_000).map(|i| { let c = i*i*i; (permut_tag(c), c) })
-                           .sorted().into_iter().group_by(|&(t,_)| t);
+    let perms = (1..10_000)
+        .map(|i| {
+            let c = i * i * i;
+            (permut_tag(c), c)
+        })
+        .sorted()
+        .into_iter()
+        .group_by(|&(t, _)| t);
 
     let mut best_cube = u64::max_value();
 
@@ -64,4 +70,3 @@ mod tests {
         b.iter(|| black_box(solve()));
     }
 }
-
