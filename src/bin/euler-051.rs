@@ -132,7 +132,7 @@ pub fn solve() -> u64 {
         n.digits[i] = Digit::Free;
         for e in &[1, 3, 7, 9] {
             n.digits[4] = Digit::Fixed(*e);
-            res.extend(test_mapping(&n).iter());
+            res.extend_from_slice(&test_mapping(&n));
         }
     }
 
@@ -148,7 +148,7 @@ pub fn solve() -> u64 {
             n.digits[j] = Digit::Free;
             for e in &[1, 3, 7, 9] {
                 n.digits[5] = Digit::Fixed(*e);
-                res.extend(test_mapping(&n).iter());
+                res.extend_from_slice(&test_mapping(&n));
             }
         }
     }

@@ -51,7 +51,7 @@ pub fn solve() -> (usize, [usize; 5]) {
 
     for p1 in &primes {
         if p1.n >= best_sum { break; }
-        let p2l = primes.iter().filter(|p2| are_coprimes(&p1, p2)).collect::<Vec<_>>();
+        let p2l = primes.iter().filter(|p2| are_coprimes(p1, p2)).collect::<Vec<_>>();
         for p2 in &p2l {
             if p1.n + p2.n >= best_sum { break; }
             let p3l = p2l.iter().filter(|p3| are_coprimes(p2, p3)).collect::<Vec<_>>();

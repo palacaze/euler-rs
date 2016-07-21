@@ -33,14 +33,8 @@
 #![feature(test)]
 extern crate test;
 
-fn digits(mut n: u64) -> Vec<u8> {
-    let mut v = Vec::new();
-    while n != 0 {
-        v.push((n % 10) as u8);
-        n /= 10;
-    }
-    v
-}
+extern crate euler;
+use euler::int::Digits;
 
 fn is_palindromic(lst : &[u8]) -> bool {
     let l = lst.len();
@@ -69,7 +63,7 @@ fn reverse_and_add(lst: &[u8]) -> Vec<u8> {
 }
 
 fn is_lychrel(n: &u64) -> bool {
-    let mut v = reverse_and_add(&digits(*n));
+    let mut v = reverse_and_add(&n.to_digits());
     for _ in 1..50 {
         if is_palindromic(&v) {
             return false;

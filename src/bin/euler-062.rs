@@ -31,7 +31,7 @@ pub fn solve_looped() -> u64 {
 
     for i in 10.. {
         let c = i * i * i;
-        let e = hash.entry(permut_tag(c)).or_insert(Vec::new());
+        let e = hash.entry(permut_tag(c)).or_insert_with(Vec::new);
         e.push(c);
         if e.len() == 5 {
             return e[0];

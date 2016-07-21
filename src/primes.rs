@@ -8,6 +8,7 @@ use super::int::Sqrt;
 
 // base struct for a prime numbers iterator, that stores encountered primes
 // in order to speed-up discovery of subsequent primes.
+#[derive(Default)]
 pub struct Primes {
     v: Vec<u64>,
 }

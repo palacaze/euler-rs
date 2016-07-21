@@ -26,6 +26,7 @@ extern crate test;
 extern crate euler;
 use euler::int::{Sqrt, Parity};
 
+#[derive(Default)]
 pub struct Diag {
     side: u64,
     count: u64,

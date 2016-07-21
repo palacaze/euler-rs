@@ -50,7 +50,7 @@ impl Num {
 }
 
 fn gen(id: u8, form: &Fn(usize) -> usize) -> Vec<Num> {
-    (1..).map(|i| form(i))
+    (1..).map(form)
          .skip_while(|&i| i < 1_000).take_while(|&i| i < 10_000)
          .map(|i| Num::new(i, id)).collect()
 }

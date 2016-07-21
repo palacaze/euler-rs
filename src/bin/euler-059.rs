@@ -43,9 +43,9 @@ use std::error::Error;
 use std::fs::File;
 use std::path::Path;
 
-const A: u8 = 'a' as u8;
-const Z: u8 = 'z' as u8;
-const SPACE: u8 = ' ' as u8;
+const A: u8 = b'a';
+const Z: u8 = b'z';
+const SPACE: u8 = b' ';
 
 fn decrypt(data: &[u8], key: &[u8]) -> Vec<u8> {
     data.iter().zip(key.iter().cycle()).map(|(d,k)| d^k).collect::<Vec<_>>()
