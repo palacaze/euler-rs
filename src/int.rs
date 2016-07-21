@@ -42,8 +42,9 @@ macro_rules! int_digits_and_sqrt_for {
                     let mut n = *self;
                     let mut v = Vec::new();
                     while n != 0 {
-                        v.push((n % 10) as u8);
-                        n /= 10;
+                        let t = n / 10;
+                        v.push((n - 10*t) as u8);
+                        n = t;
                     }
                     v
                 }
@@ -85,7 +86,7 @@ parity_for!(usize,u8,u16,u32,u64,isize,i8,i16,i32,i64);
 
 #[cfg(test)]
 mod tests {
-    use super::{Sqrt, Parity};
+    use super::{Sqrt, Parity, Digits};
 
     #[test]
     fn test_square_root() {
@@ -109,6 +110,13 @@ mod tests {
         assert!(3i64.is_odd());
         assert!(4i64.is_even());
         assert!(0u8.is_even());
+    }
+
+    #[test]
+    fn test_to_primes() {
+        let n = 1234567890123;
+        assert_eq!(&n.to_digits(), &[3,2,1,0,9,8,7,6,5,4,3,2,1]);
+        assert_eq!(usize::from_digits(&n.to_digits()), n);
     }
 }
 
