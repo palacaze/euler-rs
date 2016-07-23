@@ -27,7 +27,12 @@ pub trait Digits {
     fn from_digits(digits: &[u8]) -> Self;
 }
 
-macro_rules! int_digits_and_sqrt_for {
+/// A trait to get half of a value
+pub trait Half {
+    fn half(&self) -> Self;
+}
+
+macro_rules! int_digits_half_and_sqrt_for {
     ( $( $t:ty ),* ) => {
         $(
             impl Sqrt for $t {
@@ -53,10 +58,16 @@ macro_rules! int_digits_and_sqrt_for {
                     digits.iter().rev().fold(0, |a, &d| 10 * a + d as Self)
                 }
             }
+
+            impl Half for $t {
+                fn half(&self) -> Self {
+                    self >> 1
+                }
+            }
         )*
     }
 }
-int_digits_and_sqrt_for!(usize,u8,u16,u32,u64);
+int_digits_half_and_sqrt_for!(usize,u8,u16,u32,u64);
 
 /// Parity trait
 pub trait Parity {
