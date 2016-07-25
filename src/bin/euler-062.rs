@@ -9,29 +9,20 @@
 #![feature(test)]
 extern crate test;
 
+extern crate euler;
+use euler::int::PermutTag;
+
 extern crate itertools;
 use itertools::Itertools;
 
 use std::collections::HashMap;
-
-// a tag that represents a set of digits.
-// All the permutations of these digits will produce the same tag
-// with 6 bits per digit we can handle numbers up to 127 digits long
-fn permut_tag(mut n: u64) -> u64 {
-    let mut d: u64 = 0;
-    while n != 0 {
-        d += 1 << (6 * (n % 10));
-        n /= 10;
-    }
-    d
-}
 
 pub fn solve_looped() -> u64 {
     let mut hash = HashMap::new();
 
     for i in 10.. {
         let c = i * i * i;
-        let e = hash.entry(permut_tag(c)).or_insert_with(Vec::new);
+        let e = hash.entry(c.permut_tag()).or_insert_with(Vec::new);
         e.push(c);
         if e.len() == 5 {
             return e[0];
@@ -45,7 +36,7 @@ pub fn solve() -> u64 {
     let perms = (1..10_000)
         .map(|i| {
             let c = i * i * i;
-            (permut_tag(c), c)
+            (c.permut_tag(), c)
         })
         .sorted()
         .into_iter()

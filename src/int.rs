@@ -32,7 +32,14 @@ pub trait Half {
     fn half(&self) -> Self;
 }
 
-macro_rules! int_digits_half_and_sqrt_for {
+/// a tag that represents a set of digits.
+/// All the permutations of these digits will produce the same tag
+/// with 6 bits per digit we can handle numbers up to 127 digits long
+pub trait PermutTag {
+    fn permut_tag(&self) -> u64;
+}
+
+macro_rules! uint_traits_impl {
     ( $( $t:ty ),* ) => {
         $(
             impl Sqrt for $t {
@@ -64,10 +71,22 @@ macro_rules! int_digits_half_and_sqrt_for {
                     self >> 1
                 }
             }
+
+            impl PermutTag for $t {
+                fn permut_tag(&self) -> u64 {
+                    let mut n = *self as u64;
+                    let mut d: u64 = 0;
+                    while n != 0 {
+                        d += 1 << (6 * (n % 10));
+                        n /= 10;
+                    }
+                    d
+                }
+            }
         )*
     }
 }
-int_digits_half_and_sqrt_for!(usize,u8,u16,u32,u64);
+uint_traits_impl!(usize,u8,u16,u32,u64);
 
 /// Parity trait
 pub trait Parity {
@@ -93,7 +112,6 @@ macro_rules! parity_for {
     }
 }
 parity_for!(usize,u8,u16,u32,u64,isize,i8,i16,i32,i64);
-
 
 #[cfg(test)]
 mod tests {
