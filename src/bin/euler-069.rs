@@ -31,6 +31,12 @@ use itertools::Itertools;
 extern crate euler;
 use euler::int::{Sqrt, Parity};
 
+// calculate the totient using euler's formula
+fn totient(i: usize, sieve: &primal::Sieve) -> usize {
+    sieve.factor(i).unwrap().iter().fold(1, |a, &(p, c)| a * (p-1) * p.pow(c as u32 - 1))
+}
+
+// calculate the totient of i, the brute-force way (before I searched on the internet)
 fn count_coprimes(i: usize, sieve: &primal::Sieve) -> usize {
     // prime factors of i
     let divs = sieve.factor(i).unwrap().iter().map(|&(p,_)| p).collect::<Vec<_>>();
@@ -75,6 +81,16 @@ pub fn solve_brute_par() -> usize {
     m.0
 }
 
+// use rayon for parallel execution
+pub fn solve_totient_par() -> usize {
+    let nb = 1_000_001;
+    let sieve = primal::Sieve::new(nb.sqrt()+1);
+    let m = (3..nb)
+        .into_par_iter()
+        .map(|i| (i, totient(i, &sieve)))
+        .reduce(&MaxTotient{});
+    m.0
+}
 // sequential brute force
 pub fn solve_brute() -> usize {
     let nb = 1_000_001;
@@ -94,13 +110,16 @@ pub fn solve() -> usize {
 
 fn main() {
     let s = solve();
-    println!("max totient quotient: {:?}", s);
+    println!("max totient quotient smart: {:?}", s);
 
     let s = solve_brute();
-    println!("max totient quotient: {:?}", s);
+    println!("max totient quotient brute: {:?}", s);
 
     let s = solve_brute_par();
-    println!("max totient quotient: {:?}", s);
+    println!("max totient quotient brute parallel: {:?}", s);
+
+    let s = solve_totient_par();
+    println!("max totient quotient euler function parallel: {:?}", s);
 }
 
 #[cfg(test)]
@@ -116,13 +135,30 @@ mod tests {
 
     #[test]
     fn test_brute_069() {
-        let s = solve();
+        let s = solve_brute();
+        assert_eq!(510510, s);
+    }
+
+    #[test]
+    fn test_brute_par_069() {
+        let s = solve_brute_par();
+        assert_eq!(510510, s);
+    }
+
+    #[test]
+    fn test_totient_par_069() {
+        let s = solve_totient_par();
         assert_eq!(510510, s);
     }
 
     #[bench]
     fn bench_069(b: &mut Bencher) {
         b.iter(|| black_box(solve()));
+    }
+
+    #[bench]
+    fn bench_totient_par_069(b: &mut Bencher) {
+        b.iter(|| black_box(solve_totient_par()));
     }
 }
 
