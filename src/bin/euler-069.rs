@@ -22,44 +22,68 @@
 extern crate test;
 extern crate primal;
 
+extern crate rayon;
+use rayon::prelude::*;
+
 extern crate itertools;
 use itertools::Itertools;
 
 extern crate euler;
 use euler::int::{Sqrt, Parity};
 
-pub fn solve_brute() -> usize {
-    let nb = 1_000_001;
-    let sieve = primal::Sieve::new(nb.sqrt()+1);
-    let mut max = (0,1);
+fn count_coprimes(i: usize, sieve: &primal::Sieve) -> usize {
+    // prime factors of i
+    let divs = sieve.factor(i).unwrap().iter().map(|&(p,_)| p).collect::<Vec<_>>();
+    let mut count = 0;
 
-    for i in 3..nb {
-        // prime factors of i
-        let divs = sieve.factor(i).unwrap().iter().map(|&(p,_)| p).collect::<Vec<_>>();
-        let mut count = 0;
+    // count co-primes encountered below i
+    for &j in &divs {
+        count += (i-1) / j;
+    }
 
-        // count co-primes encountered below i
-        for &j in &divs {
-            count += (i-1) / j;
-        }
-
-        // When a number is multiple of 2 prime factors, it has been counted twice, so
-        // we remove duplicates. However, if it was multiples of 3 prime factors, we
-        // just removed it 3 times so we must add it again...
-        for c in 1..(divs.len()+1) {
-            for m in divs.iter().combinations_n(c).map(|x| x.iter().fold(1, |a, &x| a*x)) {
-                let num = (i-1) / m;
-                if c.is_even() { count -= num; } else { count += num; }
-            }
-        }
-
-        let count = i - 1 - count;
-        if i * max.1 > count * max.0 {
-            max = (i, count);
+    // When a number is multiple of 2 prime factors, it has been counted twice, so
+    // we remove duplicates. However, if it was multiples of 3 prime factors, we
+    // just removed it 3 times so we must add it again...
+    for c in 2..(divs.len()+1) {
+        for m in divs.iter().combinations_n(c).map(|x| x.iter().fold(1, |a, &x| a*x)) {
+            let num = (i-1) / m;
+            if c.is_even() { count -= num; } else { count += num; }
         }
     }
 
-    max.0
+    i - 1 - count
+}
+
+struct MaxTotient;
+
+// max over n / phi(n)
+impl rayon::par_iter::reduce::ReduceOp<(usize, usize)> for MaxTotient {
+    fn start_value(&self) -> (usize, usize) { (0, 1) }
+    fn reduce(&self, v1: (usize, usize), v2: (usize, usize)) -> (usize, usize) {
+        if v1.0 * v2.1 > v1.1 * v2.0 { v1 } else { v2 }
+    }
+}
+
+// use rayon for parallel execution
+pub fn solve_brute_par() -> usize {
+    let nb = 1_000_001;
+    let sieve = primal::Sieve::new(nb.sqrt()+1);
+    let m = (3..nb)
+        .into_par_iter()
+        .map(|i| (i, count_coprimes(i, &sieve)))
+        .reduce(&MaxTotient{});
+    m.0
+}
+
+// sequential brute force
+pub fn solve_brute() -> usize {
+    let nb = 1_000_001;
+    let sieve = primal::Sieve::new(nb.sqrt()+1);
+    let m = (3..nb)
+        .into_iter()
+        .map(|i| (i, count_coprimes(i, &sieve)))
+        .fold((0, 1), |v1, v2|  if v1.0 * v2.1 > v1.1 * v2.0 { v1 } else { v2 });
+    m.0
 }
 
 // the number with the most prime factors is the one we want
@@ -73,6 +97,9 @@ fn main() {
     println!("max totient quotient: {:?}", s);
 
     let s = solve_brute();
+    println!("max totient quotient: {:?}", s);
+
+    let s = solve_brute_par();
     println!("max totient quotient: {:?}", s);
 }
 
