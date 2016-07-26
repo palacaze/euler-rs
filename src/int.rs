@@ -2,6 +2,7 @@ extern crate test;
 
 use std::ops::Mul;
 use std::cmp::Eq;
+use std::mem;
 
 /// This module exposes a few tools related to integer manipulation
 /// that are frequently encountered in euler problems
@@ -37,6 +38,12 @@ pub trait Half {
 /// with 6 bits per digit we can handle numbers up to 127 digits long
 pub trait PermutTag {
     fn permut_tag(&self) -> u64;
+}
+
+/// Determine greatest common divisor
+pub trait Gcd {
+    fn gcd(self, other: Self) -> Self;
+    fn euclidean_gcd(self, other: Self) -> Self;
 }
 
 macro_rules! uint_traits_impl {
@@ -83,6 +90,43 @@ macro_rules! uint_traits_impl {
                     d
                 }
             }
+
+            impl Gcd for $t {
+                // use Stein's algorithm
+                fn gcd(self, other: Self) -> Self {
+                    let (mut a, mut b) = if self > other {
+                        (self, other)
+                    } else {
+                        (other, self)
+                    };
+
+                    if a == 0 || b == 0 { return a | b; }
+
+                    // find common factors of 2
+                    let shift = (a | b).trailing_zeros();
+
+                    // divide n and m by 2 until odd
+                    // m inside loop
+                    b >>= b.trailing_zeros();
+
+                    while a != 0 {
+                        a >>= a.trailing_zeros();
+                        if b > a { mem::swap(&mut b, &mut a) }
+                        a -= b;
+                    }
+
+                    b << shift
+                }
+
+                fn euclidean_gcd(self, other: Self) -> Self {
+                    let (mut a, mut b) = (self, other);
+                    while a != 0 {
+                        mem::swap(&mut a, &mut b);
+                        a %= b;
+                    }
+                    b
+                }
+            }
         )*
     }
 }
@@ -115,7 +159,7 @@ parity_for!(usize,u8,u16,u32,u64,isize,i8,i16,i32,i64);
 
 #[cfg(test)]
 mod tests {
-    use super::{Sqrt, Parity, Digits};
+    use super::{Sqrt, Parity, Digits, Gcd};
 
     #[test]
     fn test_square_root() {
@@ -139,6 +183,21 @@ mod tests {
         assert!(3i64.is_odd());
         assert!(4i64.is_even());
         assert!(0u8.is_even());
+    }
+
+    #[test]
+    fn test_gcd() {
+        assert_eq!(0, 0u8.gcd(0));
+        assert_eq!(10, 10u8.gcd(0));
+        assert_eq!(10, 0u8.gcd(10));
+        assert_eq!(10, 10u8.gcd(20));
+        assert_eq!(44, 2024u32.gcd(748));
+
+        for i in 0..1000u32 {
+            for j in 0..1000u32 {
+                assert_eq!(i.gcd(j), i.euclidean_gcd(j));
+            }
+        }
     }
 
     #[test]

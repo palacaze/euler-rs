@@ -10,6 +10,9 @@
 //
 // If the product of these four fractions is given in its lowest common terms, find the value of the denominator.
 
+extern crate euler;
+use euler::int::Gcd;
+
 fn cancelling_digits(n: usize, d: usize) -> bool {
     let n1 = n % 10;
     let n2 = n / 10;
@@ -23,19 +26,12 @@ fn cancelling_digits(n: usize, d: usize) -> bool {
     false
 }
 
-// euclid gcd
-fn gcd(a: usize, b: usize) -> usize {
-    if a == b     { a }
-    else if a > b { gcd(a - b, b) }
-    else          { gcd(a, b - a) }
-}
-
 fn simplify(n: usize, d: usize) -> (usize, usize) {
     let mut mn = n;
     let mut md = d;
 
     loop {
-        let r = gcd(mn, md);
+        let r = mn.gcd(md);
         if r == 1 {
             return (mn, md);
         }
