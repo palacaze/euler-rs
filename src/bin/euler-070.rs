@@ -22,28 +22,18 @@ use euler::int::{Sqrt, PermutTag};
 
 // calculate the totient using euler's formula
 fn totient(i: usize, sieve: &primal::Sieve) -> usize {
-    sieve.factor(i).unwrap().iter().fold(1, |a, &(p, c)| a * (p-1) * p.pow(c as u32 - 1))
+    sieve.factor(i).unwrap().iter().fold(i, |a, &(p, _)| a * (p-1) / p)
 }
 
-struct MinTotient;
-
-// min over n / phi(n)
-impl rayon::par_iter::reduce::ReduceOp<(usize, usize)> for MinTotient {
-    fn start_value(&self) -> (usize, usize) { (1, 0) }
-    fn reduce(&self, v1: (usize, usize), v2: (usize, usize)) -> (usize, usize) {
-        if v1.0 * v2.1 < v1.1 * v2.0 { v1 } else { v2 }
-    }
-}
-
-pub fn solve_totient() -> usize {
+pub fn solve_brute_par() -> usize {
     let nb = 10_000_001;
     let sieve = primal::Sieve::new(nb.sqrt()+1);
     let m = (3..nb)
         .into_par_iter()
         .map(|i| (i, totient(i, &sieve)))
         .filter(|v| v.0.permut_tag() == v.1.permut_tag())
-        .reduce(&MinTotient{});
-    m.0
+        .reduce_with(|v1, v2| if v1.0 * v2.1 < v1.1 * v2.0 { v1 } else { v2 });
+    m.unwrap().0
 }
 
 // φ(n) = n.Π(1 - 1/p) where p are the prime factors of n
@@ -53,7 +43,7 @@ pub fn solve_totient() -> usize {
 // we search for the product of 2 primes, so that φ(n) = (p1 - 1)(p2 - 1)
 // and n/φ(n) = p1*p2 /((p1-1)(p2-1)), which is smallest when p1 is near p2
 // and p1*p2 as big as possible
-pub fn solve_smart() -> usize {
+pub fn solve_semiprimes() -> usize {
     let nb = 10_000_001;
     let primes = primal::Primes::all().take_while(|&i| i < nb / 2).collect::<Vec<_>>();
     let mut max = (1, 0);
@@ -77,10 +67,12 @@ pub fn solve_smart() -> usize {
 }
 
 fn main() {
-    let s = solve_smart();
+    // 0.25 sec
+    let s = solve_semiprimes();
     println!("min totient quotient: {:?}", s);
 
-    let s = solve_totient();
+    // 2.6 sec
+    let s = solve_brute_par();
     println!("min totient quotient: {:?}", s);
 }
 
@@ -90,20 +82,20 @@ mod tests {
     use test::{Bencher, black_box};
 
     #[test]
-    fn test_smart_070() {
-        let s = solve_smart();
+    fn test_brute_070() {
+        let s = solve_brute_par();
         assert_eq!(8319823, s);
     }
 
     #[test]
-    fn test_totient_070() {
-        let s = solve_totient();
+    fn test_semiprimes_070() {
+        let s = solve_semiprimes();
         assert_eq!(8319823, s);
     }
 
     #[bench]
     fn bench_070(b: &mut Bencher) {
-        b.iter(|| black_box(solve_smart()));
+        b.iter(|| black_box(solve_semiprimes()));
     }
 }
 
