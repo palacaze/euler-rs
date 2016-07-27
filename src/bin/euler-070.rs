@@ -10,6 +10,7 @@
 // Find the value of n, 1 < n < 107, for which φ(n) is a permutation of n and the ratio n/φ(n)
 // produces a minimum.
 
+#![feature(step_by)]
 #![feature(test)]
 extern crate test;
 extern crate primal;
@@ -34,6 +35,34 @@ pub fn solve_brute_par() -> usize {
         .filter(|v| v.0.permut_tag() == v.1.permut_tag())
         .reduce_with(|v1, v2| if v1.0 * v2.1 < v1.1 * v2.0 { v1 } else { v2 });
     m.unwrap().0
+}
+
+// calculate totients under n
+fn totients(n: usize) -> Vec<usize> {
+    let mut t = vec![0; n] ;
+    for i in 2..n {
+
+        // i is a prime
+        if t[i] == 0 {
+            t[i] = i - 1;
+            for j in (2*i..n).step_by(i) {
+                // initialize new entries
+                if t[j] == 0 {
+                    t[j] = j;
+                }
+                t[j] = t[j] * (i - 1) / i;
+            }
+        }
+    }
+    t
+}
+
+pub fn solve_brute_totient() -> usize {
+    let nb = 10_000_001;
+    let m = totients(nb).into_iter().enumerate().skip(2)
+        .filter(|v| v.0.permut_tag() == v.1.permut_tag())
+        .fold((1, 0), |v1, v2| if v1.0 * v2.1 < v1.1 * v2.0 { v1 } else { v2 });
+    m.0
 }
 
 // φ(n) = n.Π(1 - 1/p) where p are the prime factors of n
@@ -73,6 +102,10 @@ fn main() {
 
     // 2.6 sec
     let s = solve_brute_par();
+    println!("min totient quotient: {:?}", s);
+
+    // 1.4 sec
+    let s = solve_brute_totient();
     println!("min totient quotient: {:?}", s);
 }
 

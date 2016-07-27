@@ -18,6 +18,7 @@
 //
 // Find the value of n ≤ 1,000,000 for which n/φ(n) is a maximum.
 
+#![feature(step_by)]
 #![feature(test)]
 extern crate test;
 extern crate primal;
@@ -34,6 +35,26 @@ use euler::int::{Sqrt, Parity};
 // calculate the totient using euler's formula
 fn totient(i: usize, sieve: &primal::Sieve) -> usize {
     sieve.factor(i).unwrap().iter().fold(i, |a, &(p, _)| a * (p-1) / p)
+}
+
+// calculate totients under n
+fn totients(n: usize) -> Vec<usize> {
+    let mut t = vec![0; n] ;
+    for i in 2..n {
+
+        // i is a prime
+        if t[i] == 0 {
+            t[i] = i - 1;
+            for j in (2*i..n).step_by(i) {
+                // initialize new entries
+                if t[j] == 0 {
+                    t[j] = j;
+                }
+                t[j] = t[j] * (i - 1) / i;
+            }
+        }
+    }
+    t
 }
 
 // calculate the totient of i, the brute-force way (before I searched on the internet)
@@ -82,6 +103,13 @@ pub fn solve_totient_par() -> usize {
     m.unwrap().0
 }
 
+pub fn solve_totient_sieve() -> usize {
+    let nb = 1000_001;
+    let m = totients(nb).into_iter().enumerate().skip(2)
+        .fold((0, 1), |v1, v2| if v1.0 * v2.1 > v1.1 * v2.0 { v1 } else { v2 });
+    m.0
+}
+
 // sequential brute force
 pub fn solve_brute() -> usize {
     let nb = 1_000_001;
@@ -115,6 +143,10 @@ fn main() {
     // 0,160 sec
     let s = solve_totient_par();
     println!("max totient quotient euler function parallel: {:?}", s);
+
+    // 40 msec
+    let s = solve_totient_sieve();
+    println!("max totient quotient sieve: {:?}", s);
 }
 
 #[cfg(test)]
@@ -152,9 +184,8 @@ mod tests {
     }
 
     #[bench]
-    #[ignore]
-    fn bench_totient_par_069(b: &mut Bencher) {
-        b.iter(|| black_box(solve_totient_par()));
+    fn bench_totient_sieve_069(b: &mut Bencher) {
+        b.iter(|| black_box(solve_totient_sieve()));
     }
 }
 
