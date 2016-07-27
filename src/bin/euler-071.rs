@@ -26,6 +26,10 @@ pub fn solve() -> usize {
     for d in (5..nb).rev() {
         let n = 3 * d / 7;
         if 7 * n == 3 * d { continue; }
+
+        // the gcd is not strictly needed, we can replace it
+        // with a loose inequality, because if n/d can be reduced,
+        // the reduced fraction will be encountered afterwards anyway
         if n * best.1 > d * best.0 && n.gcd(d) == 1 {
             best = (n, d);
         }
