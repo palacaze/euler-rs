@@ -18,6 +18,8 @@
 extern crate test;
 extern crate primal;
 extern crate euler;
+extern crate itertools;
+use itertools::Itertools;
 extern crate time;
 use time::PreciseTime;
 use euler::int::{Gcd, Sqrt, Parity};
