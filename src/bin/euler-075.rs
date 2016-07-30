@@ -19,16 +19,38 @@
 // Given that L is the length of the wire, for how many values of L ≤ 1,500,000 can exactly one
 // integer sided right angle triangle be formed?
 
+#![feature(step_by)]
 #![feature(test)]
 extern crate test;
-extern crate primal;
 extern crate time;
 extern crate euler;
 extern crate itertools;
 use itertools::Itertools;
-
 use euler::int::Sqrt;
 use time::PreciseTime;
+
+fn prime_factors(n: usize) -> Vec<Vec<(usize,usize)>> {
+    let mut f = vec![Vec::new(); n];
+    for i in 2..n {
+        // if i is prime
+        if f[i].is_empty() {
+            // add it as prime factor to all the multiples of i
+            for k in (i..n).step_by(i) {
+                f[k].push((i, 1));
+            }
+
+            // now we handle numbers with several i factors
+            for p in (0..).scan(i, |a, _| {*a *= i; Some(*a)}) {
+                if p > n { break; }
+                for k in (p..n).step_by(p) {
+                    f[k].last_mut().unwrap().1 += 1;
+                }
+            }
+        }
+    }
+
+    f
+}
 
 fn square_root(n: usize) -> Option<usize> {
     let s = n.sqrt() as usize;
@@ -36,13 +58,12 @@ fn square_root(n: usize) -> Option<usize> {
 }
 
 // build combinations of prime factors of a²
-fn prime_combinations(a: usize, sieve: &primal::Sieve) -> Vec<usize> {
+fn prime_combinations(a: usize, fac: &[(usize, usize)]) -> Vec<usize> {
     // prime factors of a²
     // if p1, p2, ..., pn are the prime factors of a, with repetition r1, r2, ..., rn
     // we create a list of vectors of powers of prime factors:
     // [[1, p1, p1^2, ..., p1^r1], [1, p2, p2^2, ..., p2^r2], ..., [1, pn, pn^2, ..., pn^rn]]
-    let fac = sieve
-        .factor(a).unwrap().iter()
+    let fac = fac.iter()
         .map(|&(p,c)| (0..(2*c+1))
              .scan(1, |m, _| { let t = *m; *m *= p; Some(t) }).collect_vec())
         .collect_vec();
@@ -71,13 +92,13 @@ fn prime_combinations(a: usize, sieve: &primal::Sieve) -> Vec<usize> {
 // from a prime factors.
 pub fn solve_sieve() -> usize {
     let nb = 1_500_000;
-    let sieve = primal::Sieve::new(nb.sqrt() + 1);
     let mut count = vec![0; nb+1];
     let amax = (nb as f32 * (1.0 - 2f32.sqrt() / 2.0)) as usize;
+    let facs = prime_factors(amax + 1);
 
     for a in 2..amax {
         // combination of prime factors of a² that represent c-b
-        let c_minus_b = prime_combinations(a, &sieve);
+        let c_minus_b = prime_combinations(a, &facs[a]);
 
         // a² = (c-b)(c+b), with a+b+c < L, so c-b > a² / (L-a)
         let a2 = a * a;
