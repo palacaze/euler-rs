@@ -48,9 +48,34 @@ pub fn solve() -> usize {
     0
 }
 
+// simple quadratic solution
+pub fn solve_brute() -> usize {
+    let target = 1_000_000;
+    let n = 60000;
+    // means of filling from 1 to n, using ones
+    let mut count = vec![1; n + 1];
+
+    // add new numbers from 2 to n-1
+    for i in 2..(n+1) {
+        count[i] = (count[i] + 1) % target;
+        for j in i+1..(n+1) {
+            count[j] = (count[j] + count[j - i]) % target;
+        }
+        if count[i] % target == 0 {
+            return i;
+        }
+    }
+
+    0
+}
+
 fn main() {
     let start = PreciseTime::now();
     let s = solve();
+    println!("n: {} ({})", s, start.to(PreciseTime::now()));
+
+    let start = PreciseTime::now();
+    let s = solve_brute();
     println!("n: {} ({})", s, start.to(PreciseTime::now()));
 }
 
