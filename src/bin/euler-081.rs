@@ -19,10 +19,7 @@
 #![feature(test)]
 extern crate test;
 extern crate time;
-#[macro_use(s)]
-extern crate ndarray;
 
-use ndarray::prelude::*;
 use time::PreciseTime;
 
 use std::mem;
@@ -31,35 +28,32 @@ use std::io::Read;
 use std::fs::File;
 use std::path::Path;
 
-fn read_data(path: &str) -> Array<i64, (usize, usize)> {
+fn read_data(path: &str) -> Vec<Vec<i64>> {
     let path = Path::new(&path);
     let mut file = File::open(&path).unwrap();
     let mut data = String::new();
     let _ = file.read_to_string(&mut data).unwrap();
-    let v = data
-        .lines().flat_map(|l| {
+    data.lines().map(|l| {
             l.split(',').map(|c| c.parse::<i64>().unwrap()).collect::<Vec<_>>()
         })
-        .collect::<Vec<_>>();
-
-    Array::from_shape_vec((80, 80), v).expect("Wrong matrix size")
+        .collect::<Vec<_>>()
 }
 
 pub fn solve(path: &str) -> i64 {
     let mat = read_data(path);
-    let n = mat.dim().0;
+    let n = mat.len();
 
     // we aggregate path sums by visiting pathes in diagonal
     let mut sums = vec![0; n];
     let mut t    = vec![0; n];
-    sums[0] = mat[(0, 0)];
+    sums[0] = mat[0][0];
 
     // top-left part
     for i in 1..n {
-        t[0] = sums[0] + mat[(0, i)];
-        t[i] = sums[i-1] + mat[(i, 0)];
+        t[0] = sums[0] + mat[0][i];
+        t[i] = sums[i-1] + mat[i][0];
         for j in 1..i {
-            t[j] = std::cmp::min(sums[j], sums[j-1]) + mat[(j, i-j)];
+            t[j] = std::cmp::min(sums[j], sums[j-1]) + mat[j][i-j];
         }
         mem::swap(&mut t, &mut sums);
     }
@@ -67,7 +61,7 @@ pub fn solve(path: &str) -> i64 {
     // bottom-left part
     for i in 1..n {
         for j in 0..n-i {
-            sums[j] = std::cmp::min(sums[j], sums[j+1]) + mat[(i+j, n-1-j)];
+            sums[j] = std::cmp::min(sums[j], sums[j+1]) + mat[i+j][n-1-j];
         }
     }
 
