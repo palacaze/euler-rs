@@ -68,7 +68,9 @@ extern crate time;
 #[macro_use] extern crate enum_primitive;
 extern crate num;
 extern crate rand;
+extern crate rulinalg;
 
+use rulinalg::matrix::*;
 use time::PreciseTime;
 use rand::distributions::{IndependentSample, Range};
 use num::FromPrimitive;
@@ -160,6 +162,64 @@ enum Square {
     FP, E1, CH2, E2, E3, R3, F1, F2, U2, F3,
     G2J, G1, G2, CC3, G3, R4, CH3, H1, T2, H2,
 }
+}
+
+mod monopoly {
+    use super::Square;
+    use super::num::FromPrimitive;
+
+    fn square(x: usize) -> Square {
+        Square::from_usize(x).unwrap()
+    }
+
+    fn next_railway(x: usize) -> Square {
+        match square(x) {
+            Square::CH1 => Square::R2,
+            Square::CH2 => Square::R3,
+            Square::CH3 => Square::R1,
+            _ => panic!("Should be on a Chance square"),
+        }
+    }
+
+    fn next_utility(x: usize) -> Square {
+        match square(x) {
+            Square::CH1 => Square::U1,
+            Square::CH2 => Square::U2,
+            Square::CH3 => Square::U1,
+            _ => panic!("Should be on a Chance square"),
+        }
+    }
+
+    pub fn set_weights(p: usize, w: f64, mut mat: &mut [f64]) {
+        match square(p) {
+            Square::G2J => mat[Square::JAIL as usize] += w,
+            Square::CC1 |
+            Square::CC2 |
+            Square::CC3 => {
+                mat[Square::GO as usize] += w / 16.0;
+                mat[Square::JAIL as usize] += w / 16.0;
+                mat[p] += 14.0 * w / 16.0;
+            },
+            Square::CH1 |
+            Square::CH2 |
+            Square::CH3 => {
+                mat[Square::GO as usize] += w / 16.0;
+                mat[Square::JAIL as usize] += w / 16.0;
+                mat[Square::C1 as usize] += w / 16.0;
+                mat[Square::E3 as usize] += w / 16.0;
+                mat[Square::H2 as usize] += w / 16.0;
+                mat[Square::R1 as usize] += w / 16.0;
+                let next_rail = next_railway(p);
+                mat[next_rail as usize] += w / 8.0;
+                let next_util = next_utility(p);
+                mat[next_util as usize] += w / 16.0;
+                let y = if p < 3 { p + 37 } else { p - 3 };
+                set_weights(y, w / 16.0, &mut mat);
+                mat[p] += 6.0 * w / 16.0;
+            },
+            _ => mat[p] += w,
+        }
+    }
 }
 
 struct State {
@@ -275,32 +335,78 @@ impl State {
     }
 }
 
-
 // monte carlo solution
 pub fn solve() -> String {
     let mut state = State::new();
     let mut count = vec![0; 40];
+    let nb = 10_000_000;
 
-    for _ in 0..10_000_000 {
+    for _ in 0..nb {
         let p = state.move_player();
         count[p] += 1;
     }
 
-    let stat = count.iter().map(|&x| x as f64 / 100_000.0).collect::<Vec<_>>();
-    println!("stats: {:?}", stat);
+    let mut stat = count.iter().enumerate()
+        .map(|(i, &x)| (100.0 * (x as f64) / (nb as f64), i)).collect::<Vec<_>>();
+    stat.sort_by(|a, b| b.0.partial_cmp(&a.0).unwrap());
 
-    let b1 = count.iter().enumerate().map(|(x, y)| (y, x)).max().unwrap().1;
-    count[b1] = 0;
-    let b2 = count.iter().enumerate().map(|(x, y)| (y, x)).max().unwrap().1;
-    count[b2] = 0;
-    let b3 = count.iter().enumerate().map(|(x, y)| (y, x)).max().unwrap().1;
-    format!("{:02}{:02}{:02}", b1, b2, b3)
+    format!("{:02}{:02}{:02}", stat[0].1, stat[1].1, stat[2].1)
+}
+
+pub fn solve_markov() -> String {
+    let mut mat = Matrix::<f64>::zeros(40, 40);
+
+    // probability for each dice
+    let dice_size = 4;
+    let dice_size_f = dice_size as f64;
+    let mut dice = vec![0.0; 2 * dice_size - 1];
+    for i in 1..dice_size+1 {
+        for j in 1..dice_size+1 {
+            dice[i+j-2] += 1.0;
+        }
+    }
+
+    // probability of having 3 doubles
+    let p3d = 1.0 / (dice_size_f * dice_size_f * dice_size_f);
+    let n3d = 1.0 - p3d;
+    for d in dice.iter_mut() {        
+        *d *= n3d / (dice_size_f * dice_size_f);
+    }
+
+    // probability matrix
+    for s in 0..40 {
+        let mut row = mat.get_row_mut(s).unwrap();
+        // effect of 3 doubles
+        row[Square::JAIL as usize] += p3d;
+
+        // probability chain for each square dice sum
+        for (d, dw) in dice.iter().enumerate() {
+            let p = (s + d + 2) % 40;
+            monopoly::set_weights(p, *dw, row);
+        }
+    }
+
+    // multiply matrix a lot of times to reach invariant
+    for _ in 0..10 {
+        mat = &mat * &mat;
+    }
+
+    // the row is composed of probabilities
+    let mut stat = mat.get_row(0).unwrap().iter().enumerate()
+        .map(|(i, &x)| (100.0 * x, i)).collect::<Vec<_>>();
+    stat.sort_by(|a, b| b.0.partial_cmp(&a.0).unwrap());
+
+    format!("{:02}{:02}{:02}", stat[0].1, stat[1].1, stat[2].1)
 }
 
 fn main() {
     let start = PreciseTime::now();
     let s = solve();
-    println!("min path: {} ({})", s, start.to(PreciseTime::now()));
+    println!("best squares: {} ({})", s, start.to(PreciseTime::now()));
+
+    let start = PreciseTime::now();
+    let s = solve_markov();
+    println!("best squares: {} ({})", s, start.to(PreciseTime::now()));
 }
 
 #[cfg(test)]
@@ -314,9 +420,15 @@ mod tests {
         assert_eq!("101524", s);
     }
 
+    #[test]
+    fn test_markov_84() {
+        let s = solve_markov();
+        assert_eq!("101524", s);
+    }
+
     #[bench]
     fn bench_84(b: &mut Bencher) {
-        b.iter(|| black_box(solve()));
+        b.iter(|| black_box(solve_markov()));
     }
 }
 
