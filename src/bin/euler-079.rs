@@ -87,7 +87,7 @@ pub fn solve(path: &str) -> String {
 
     'next_key: for key in Heap::new(&mut chars) {
         for log in &logs {
-            if !match_order(&log, &key) { continue 'next_key; }
+            if !match_order(log, &key) { continue 'next_key; }
         }
 
         return key.into_iter().collect();

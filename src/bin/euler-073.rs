@@ -13,7 +13,6 @@
 // How many fractions lie between 1/3 and 1/2 in the sorted set of reduced proper fractions for d ≤
 // 12,000?
 
-#![feature(step_by)]
 #![feature(test)]
 extern crate test;
 extern crate primal;

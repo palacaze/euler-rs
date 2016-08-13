@@ -75,8 +75,7 @@ impl cmp::Ord for Node {
 impl<'a> Heap<Node> for Vec<Node> {
     fn push_heap(&mut self, e: Node) {
         match self.binary_search(&e) {
-            Ok(i) => self.insert(i, e),
-            Err(i) => self.insert(i, e)
+            Ok(i) | Err(i) => self.insert(i, e),
         }
     }
 
@@ -104,14 +103,14 @@ fn read_data(path: &str) -> Vec<Vec<Node>> {
     mat
 }
 
-fn visit<'a>(n: &Node, t: &mut Node, heap: &mut Vec<Node>) {
+fn visit(n: &Node, t: &mut Node, heap: &mut Vec<Node>) {
     if t.ok { return; } // already visited
 
     let d = n.dist + t.weight;
     if d < t.dist {
         t.dist = d;
-        heap.remove_heap(&t);
-        heap.push_heap(t.clone());
+        heap.remove_heap(t);
+        heap.push_heap(*t);
     }
 }
 
@@ -125,7 +124,7 @@ pub fn solve(path: &str) -> u32 {
     let mut heap: Vec<Node> = Vec::with_capacity(n * n);
     for col in &mat {
         for e in col {
-            heap.push_heap(e.clone());
+            heap.push_heap(*e);
         }
     }
 
