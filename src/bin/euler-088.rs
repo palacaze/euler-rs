@@ -170,7 +170,7 @@ mod tests {
 
     #[bench]
     fn bench_88(b: &mut Bencher) {
-        b.iter(|| black_box(solve_brute()));
+        b.iter(|| black_box(solve()));
     }
 }
 
