@@ -26,19 +26,28 @@ extern crate time;
 use time::PreciseTime;
 
 // set combinations builder
-struct Combinations<'a, T> where T: 'a {
+struct Combinations<'a, T>
+    where T: 'a
+{
     set: &'a [T],
     n: usize,
     idx: Vec<usize>,
     max: Vec<usize>,
 }
 
-impl<'a, T> Combinations<'a, T> where T: Default + Copy {
+impl<'a, T> Combinations<'a, T>
+    where T: Default + Copy
+{
     fn new(set: &'a [T], n: usize) -> Self {
         let mut idx = (0..n).collect::<Vec<_>>();
         idx[n-1] -= 1;
         let max = (set.len()-n..set.len()).collect::<Vec<_>>();
-        Combinations { set: set, n: n, idx: idx, max: max }
+        Combinations {
+            set: set,
+            n: n,
+            idx: idx,
+            max: max,
+        }
     }
 
     // iterate over combinations n elements in set and return current combination
@@ -102,7 +111,7 @@ fn count_unordered_subsets(set: &[usize], n: usize) -> usize {
 pub fn solve() -> usize {
     let n = 12;
     let set = (0..n).collect::<Vec<_>>();
-    (2..n/2+1).map(|i| count_unordered_subsets(&set, i)).sum::<usize>()
+    (2..n/2 + 1).map(|i| count_unordered_subsets(&set, i)).sum::<usize>()
 }
 
 fn main() {
@@ -127,4 +136,3 @@ mod tests {
         b.iter(|| black_box(solve()));
     }
 }
-
