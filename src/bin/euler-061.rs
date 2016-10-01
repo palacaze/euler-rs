@@ -67,9 +67,16 @@ pub fn solve() -> (Vec<usize>, usize) {
 
     // map of front values and back values
     ls.sort_by(|&x, &y| x.f.cmp(&y.f));
-    let fronts = ls.iter().cloned().group_by(|&n| n.f).collect::<HashMap<_,_>>();
+    let mut fronts = HashMap::new();
+    for (k, g) in &ls.iter().cloned().group_by(|&n| n.f) {
+        fronts.insert(k, g.into_iter().collect::<Vec<_>>());
+    }
+
     ls.sort_by(|&x, &y| x.b.cmp(&y.b));
-    let backs  = ls.iter().cloned().group_by(|&n| n.b).collect::<HashMap<_,_>>();
+    let mut backs = HashMap::new();
+    for (k, g) in &ls.iter().cloned().group_by(|&n| n.b) {
+        backs.insert(k, g.into_iter().collect::<Vec<_>>());
+    }
 
     // list all the triplets that follow each other
     let mut triplets = Vec::new();

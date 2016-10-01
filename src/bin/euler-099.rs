@@ -61,7 +61,7 @@ mod tests {
     fn test_99() {
         let path = "data/p099_base_exp.txt";
         let s = solve(path);
-        assert_eq!(18769, s);
+        assert_eq!(709, s);
     }
 
     #[bench]

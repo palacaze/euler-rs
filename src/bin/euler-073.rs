@@ -48,6 +48,8 @@ static PRIMES_TABLE: &'static [u32] = &[
 // calculate the totient of i, the brute-force way (before I searched on the internet)
 // divs are the prime factors of i
 fn count_coprimes_k(i: usize, k: usize, divs: &[usize]) -> usize {
+    // if i < k { return 0; }
+
     let mut count = 0;
 
     // count co-primes encountered below i
@@ -59,13 +61,13 @@ fn count_coprimes_k(i: usize, k: usize, divs: &[usize]) -> usize {
     // we remove duplicates. However, if it was multiples of 3 prime factors, we
     // just removed it 3 times so we must add it again...
     for c in 2..(divs.len()+1) {
-        for m in divs.iter().combinations_n(c).map(|x| x.iter().fold(1, |a, &x| a*x)) {
+        for m in divs.iter().combinations(c).map(|x| x.iter().fold(1, |a, &x| a*x)) {
             let num = (i-1) / m;
             if c.is_even() { count -= num / k; } else { count += num / k; }
         }
     }
 
-    i / k - 1 - count
+    i / k - count
 }
 
 fn common_element(a: &[usize], b: &[usize]) -> bool {
@@ -146,14 +148,14 @@ pub fn solve_totient() -> usize {
             c2 - c3
         })
         .fold(0, |a, c| a + c);
-    s - 1
+    s - 1 - nb/6
 }
 
 fn main() {
     // 390 msec
-    let start = PreciseTime::now();
-    let s = solve_brute();
-    println!("number of fractions brute: {:?} ({})", s, start.to(PreciseTime::now()));
+    // let start = PreciseTime::now();
+    // let s = solve_brute();
+    // println!("number of fractions brute: {:?} ({})", s, start.to(PreciseTime::now()));
 
     // 58 ms
     let start = PreciseTime::now();

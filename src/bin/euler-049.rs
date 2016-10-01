@@ -44,7 +44,8 @@ pub fn solve() -> Vec<(u64, u64, u64)> {
                              .group_by(|&(t,_)| t);
 
     // iterate over permutation groups
-    for (_, group) in prime_groups {
+    for (_, group) in &prime_groups {
+        let group: Vec<_> = group.collect();
         if group.len() < 3 {
             continue;
         }

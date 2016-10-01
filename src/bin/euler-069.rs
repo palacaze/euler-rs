@@ -72,7 +72,7 @@ fn count_coprimes(i: usize, sieve: &primal::Sieve) -> usize {
     // we remove duplicates. However, if it was multiples of 3 prime factors, we
     // just removed it 3 times so we must add it again...
     for c in 2..(divs.len()+1) {
-        for m in divs.iter().combinations_n(c).map(|x| x.iter().fold(1, |a, &x| a*x)) {
+        for m in divs.iter().combinations(c).map(|x| x.iter().fold(1, |a, &x| a*x)) {
             let num = (i-1) / m;
             if c.is_even() { count -= num; } else { count += num; }
         }

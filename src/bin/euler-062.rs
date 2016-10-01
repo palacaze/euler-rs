@@ -38,19 +38,14 @@ pub fn solve() -> u64 {
             let c = i * i * i;
             (c.permut_tag(), c)
         })
-        .sorted()
-        .into_iter()
-        .group_by(|&(t, _)| t);
+        .sorted();
 
     let mut best_cube = u64::max_value();
 
-    for (_, g) in perms {
-        if g.len() == 5 {
-            if let Some(m) = g.iter().min() {
-                if m.1 < best_cube {
-                    best_cube = m.1;
-                }
-            }
+    for (_, g) in &perms.iter().group_by(|&&(t, _)| t) {
+        let r = g.fold((0, u64::max_value()), |a, x| (a.0+1, std::cmp::min(x.1, a.1)));
+        if r.0 == 5 && r.1 < best_cube {
+            best_cube = r.1;
         }
     }
 

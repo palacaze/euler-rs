@@ -5,7 +5,7 @@ authors = ["Pierre-Antoine Lacaze <pa.lacaze@laposte.net>"]
 
 [dependencies]
 ndarray = "0.6"
-itertools = "0.4"
+itertools = "0.5"
 gmp = "0.3"
 permutohedron = "0.2"
 primal = "0.2"
@@ -16,3 +16,8 @@ rand = "0.3"
 num = "*"
 enum_primitive = "*"
 rulinalg = "0.2"
+
+[profile.release]
+# opt-level = 3
+debug = true
+# lto = true

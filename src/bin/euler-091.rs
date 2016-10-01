@@ -33,7 +33,7 @@ fn simplify(n: usize, d: usize) -> (usize, usize) {
 }
 
 pub fn solve() -> usize {
-    let nb = 1000;
+    let nb = 50;
     let mut count = 3 * nb * nb;
 
     for x in 1..nb+1 {
@@ -59,13 +59,13 @@ mod tests {
     use test::{Bencher, black_box};
 
     #[test]
-    fn test_90() {
+    fn test_91() {
         let s = solve();
         assert_eq!(14234, s);
     }
 
     #[bench]
-    fn bench_90(b: &mut Bencher) {
+    fn bench_91(b: &mut Bencher) {
         b.iter(|| black_box(solve()));
     }
 }

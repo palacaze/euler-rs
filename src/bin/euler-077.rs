@@ -33,7 +33,7 @@ fn solve_upto(n: usize, target: usize) -> Option<usize> {
 }
 
 pub fn solve() -> usize {
-    let target = 10_000_000;
+    let target = 5_000;
     let mut n = 100;
     // we don't know the range to span, start from 100 and
     // increase if we don't get an answer

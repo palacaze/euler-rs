@@ -83,7 +83,7 @@ fn arrangements(d: Digits) -> Vec<Digits> {
     }
 
     d.unset_digits()
-        .combinations_n(6 - d.len())
+        .combinations(6 - d.len())
         .map(|c| {
             let mut a = d;
             for i in c { a.set(i); }

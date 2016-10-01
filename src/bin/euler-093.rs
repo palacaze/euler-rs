@@ -70,7 +70,7 @@ fn apply(op: Op, a: (i32, i32), b: (i32, i32)) -> (i32, i32) {
 
 // 4-digit combinations
 fn digit_combinations() -> Vec<Vec<i32>> {
-     (1..10).combinations_n(4).collect()
+     (1..10).combinations(4).collect()
 }
 
 // mark a number as formed if positive and integer

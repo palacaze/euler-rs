@@ -52,7 +52,7 @@ mod tests {
     #[test]
     fn test_87() {
         let s = solve();
-        assert_eq!(2772, s);
+        assert_eq!(1097343, s);
     }
 
     #[bench]

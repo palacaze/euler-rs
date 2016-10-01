@@ -353,7 +353,7 @@ pub fn solve() -> String {
 }
 
 pub fn solve_markov() -> String {
-    let dice_size = 6;
+    let dice_size = 4;
     let dice_size_f = dice_size as f64;
 
     // probability of having 3 doubles
