@@ -5,7 +5,10 @@ Solve Project Euler problems using Rust as an incentive to learn the language.
 Self-enforced rules:
 
 * Never ever cheat (I won't peek at other's solutions),
-* Try and go the extra mile whenever possible.
+* Try and go the extra mile whenever possible,
+* Performance matters, efficient algorithms should be used.
 
-Basically, I want to learn Rust. It takes precedence over solving Euler's problems. That means I won't take any shortcuts that may result in overly hackish and throwaway code. Instead I intend to build upon the language many constructs in order to create generic and elegant, reusable solutions wherever possible.
+As I wrote this a few years ago, the code may not take advantage of some of the recent stable features.
+
+Most of the code is unit tested and benchmarked. Some problems have been solved using several approaches to get a handle on how to write fast Rust code.
 
