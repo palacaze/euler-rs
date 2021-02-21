@@ -8,7 +8,6 @@
 
 // palindromic and no leading 0 means odd number
 
-#[macro_use]
 extern crate itertools;
 use itertools::Itertools;
 

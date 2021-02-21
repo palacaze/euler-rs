@@ -12,7 +12,6 @@
 //
 // How many elements would be contained in the set of reduced proper fractions for d ≤ 1,000,000?
 
-#![feature(step_by)]
 #![feature(test)]
 extern crate test;
 extern crate primal;

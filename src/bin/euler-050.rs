@@ -15,7 +15,6 @@ extern crate test;
 
 extern crate euler;
 
-#[macro_use]
 extern crate itertools;
 use itertools::Itertools;
 use itertools::FoldWhile::{Continue, Done};

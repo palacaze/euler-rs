@@ -33,8 +33,6 @@
 // each solution grid; for example, 483 is the 3-digit number found in the top left corner of the
 // solution grid above.
 
-#![feature(conservative_impl_trait)]
-#![feature(try_from)]
 #![feature(test)]
 extern crate test;
 extern crate time;
@@ -133,8 +131,8 @@ enum Cell {
 }
 
 impl TryFrom<Cell> for usize {
-    type Err = ();
-    fn try_from(cell: Cell) -> Result<Self, Self::Err> {
+    type Error = ();
+    fn try_from(cell: Cell) -> Result<Self, Self::Error> {
         match cell {
             Cell::Value(x) | Cell::Guess(x) | Cell::Deduc(x,_) => Ok(x as usize),
             Cell::Empty => Err(()),
@@ -165,19 +163,19 @@ impl Sudoku {
     }
 
     // iterator over elements in square at given position
-    fn square_at<'a>(&'a self, (r, c): (usize, usize)) -> impl Iterator<Item=Cell> {
+    fn square_at<'a>(&'a self, (r, c): (usize, usize)) -> impl Iterator<Item=Cell> + 'a {
         let r = (r / 3) * 3;
         let c = (c / 3) * 3;
         (0..9).map(move |i| self.grid[(r+i/3, c+i%3)])
     }
 
     // iterator over elements at given col
-    fn col<'a>(&'a self, n: usize) -> impl Iterator<Item=Cell> {
+    fn col<'a>(&'a self, n: usize) -> impl Iterator<Item=Cell> + 'a {
         (0..9).map(move |i| self.grid[(i, n)])
     }
 
     // iterator over elements at given row
-    fn row<'a>(&'a self, n: usize) -> impl Iterator<Item=Cell> {
+    fn row<'a>(&'a self, n: usize) -> impl Iterator<Item=Cell>  + 'a {
         (0..9).map(move |i| self.grid[(n, i)])
     }
 

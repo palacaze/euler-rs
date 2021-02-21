@@ -18,7 +18,6 @@
 //
 // Find the value of n ≤ 1,000,000 for which n/φ(n) is a maximum.
 
-#![feature(step_by)]
 #![feature(test)]
 extern crate test;
 extern crate primal;

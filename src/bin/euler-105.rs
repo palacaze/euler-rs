@@ -17,7 +17,6 @@
 //
 // NOTE: This problem is related to Problem 103 and Problem 106.
 
-#![feature(conservative_impl_trait)]
 #![feature(test)]
 extern crate test;
 extern crate time;

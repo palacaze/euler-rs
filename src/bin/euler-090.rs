@@ -35,7 +35,6 @@
 // How many distinct arrangements of the two cubes allow for all of the square numbers to be
 // displayed?
 
-#![feature(conservative_impl_trait)]
 #![feature(test)]
 extern crate test;
 extern crate time;

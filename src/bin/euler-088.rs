@@ -32,7 +32,6 @@
 // - if n (and k) is impair, then b = 3 and a = (n+3)/2 = (k+1)/2 is a solution
 // The conclusion is that there always is a solution and that it is never more than 2k
 
-#![feature(step_by)]
 #![feature(test)]
 extern crate test;
 extern crate time;

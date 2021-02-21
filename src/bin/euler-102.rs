@@ -17,7 +17,6 @@
 //
 // NOTE: The first two examples in the file represent the triangles in the example given above.
 
-#![feature(conservative_impl_trait)]
 #![feature(test)]
 extern crate test;
 extern crate time;

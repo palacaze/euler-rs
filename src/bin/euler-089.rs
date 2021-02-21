@@ -25,7 +25,6 @@
 // Note: You can assume that all the Roman numerals in the file contain no more than four
 // consecutive identical units.
 
-#![feature(conservative_impl_trait)]
 #![feature(test)]
 extern crate test;
 extern crate time;

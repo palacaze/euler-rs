@@ -21,7 +21,6 @@
 // We thus reduced the problem to finding integer right triangles, we can use the
 // results of problem 075 to that end.
 
-#![feature(step_by)]
 #![feature(test)]
 extern crate test;
 extern crate time;

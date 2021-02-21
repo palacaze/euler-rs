@@ -14,7 +14,6 @@
 // as an exception, the first number may be 2 or 5, because those are primes and only appear
 // for the last truncation, that gives a one-digit number
 
-#[macro_use]
 extern crate itertools;
 
 extern crate euler;

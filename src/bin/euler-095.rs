@@ -17,7 +17,6 @@
 //
 // Find the smallest member of the longest amicable chain with no element exceeding one million.
 
-#![feature(step_by)]
 #![feature(test)]
 extern crate test;
 extern crate time;

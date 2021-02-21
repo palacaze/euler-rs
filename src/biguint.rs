@@ -18,11 +18,11 @@ impl BigUint {
         BigUint::zero()
     }
 
-    pub fn zero() -> Self() {
+    pub fn zero() -> Self {
         BigUint(vec![0u8])
     }
 
-    pub fn one() -> Self() {
+    pub fn one() -> Self {
         BigUint(vec![1u8])
     }
 }
@@ -101,8 +101,8 @@ macro_rules! common_biguint_ops_for {
             }
 
             impl<'a> convert::TryFrom<&'a BigUint> for $t {
-                type Err = TryFromBigUintError;
-                fn try_from(u: &BigUint) -> Result<Self, Self::Err> {
+                type Error = TryFromBigUintError;
+                fn try_from(u: &BigUint) -> Result<Self, Self::Error> {
                     let max = BigUint::from(<$t>::max_value());
                     if u > &max {
                         Err(TryFromBigUintError(()))

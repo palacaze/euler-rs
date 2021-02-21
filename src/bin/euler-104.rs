@@ -12,7 +12,6 @@
 // Given that Fk is the first Fibonacci number for which the first nine digits AND the last nine
 // digits are 1-9 pandigital, find k.
 
-#![feature(conservative_impl_trait)]
 #![feature(test)]
 extern crate test;
 extern crate time;

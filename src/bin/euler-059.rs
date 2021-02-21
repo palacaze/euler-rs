@@ -39,7 +39,6 @@ use permutohedron::Heap;
 use std::str::FromStr;
 use std::env;
 use std::io::Read;
-use std::error::Error;
 use std::fs::File;
 use std::path::Path;
 
@@ -57,14 +56,14 @@ fn read_data(path: &str) -> Vec<u8> {
 
     // open
     let mut file = match File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Err(why) => panic!("couldn't open {}: {}", display, why),
         Ok(file) => file,
     };
 
     // read
     let mut data = String::new();
     if let Err(why) = file.read_to_string(&mut data) {
-        panic!("couldn't read {}: {}", display, why.description());
+        panic!("couldn't read {}: {}", display, why);
     };
 
     // parsing

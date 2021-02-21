@@ -9,7 +9,6 @@
 
 use std::env;
 use std::io::Read;
-use std::error::Error;
 use std::fs::File;
 use std::path::Path;
 
@@ -24,13 +23,13 @@ fn main() {
     let display = path.display();
 
     let mut file = match File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Err(why) => panic!("couldn't open {}: {}", display, why),
         Ok(file) => file,
     };
 
     let mut names = String::new();
     if let Err(why) = file.read_to_string(&mut names) {
-        panic!("couldn't read {}: {}", display, why.description());
+        panic!("couldn't read {}: {}", display, why);
     }
 
     let mut v : Vec<&str> = names.split(',').map(|s| s.trim_matches('"')).collect();

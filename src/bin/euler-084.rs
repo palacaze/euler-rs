@@ -370,7 +370,7 @@ pub fn solve_markov() -> String {
 
     // build stochastic matrix
     for s in 0..40 {
-        let mut row = mat.get_row_mut(s).unwrap();
+        let row = mat.get_row_mut(s).unwrap();
         // effect of 3 doubles
         row[Square::JAIL as usize] += p3d;
 
